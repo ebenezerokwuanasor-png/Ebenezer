@@ -1,14 +1,8 @@
 [
   {
-    "title": "Welcome to RAD. EBENEZER.COM",
-    "date": "2025-11-02",
-    "content": "This is the first post on my official public webpage. Here, I will share radiography knowledge, healthcare updates, and professional insights.",
-    "download": ""
-  },
-  {
-    "title": "Future of Radiographic Technology",
-    "date": "2025-11-01",
-    "content": "AI-assisted imaging, smart contrast agents, and portable X-ray systems are shaping the next era of diagnostic radiography. Stay tuned for updates.",
+    "title": "Radiography in Action",
+    "date": "2025-11-03",
+    "content": "Here is my uploaded radiographic image:<br><img src='https://raw.githubusercontent.com/ebenezerokwuanasor-png/Ebenezer/refs/heads/main/file_00000000756871f4a09c8c592415df90.png' width='300'>",
     "download": ""
   }
 ]
