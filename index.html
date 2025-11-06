@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RAD. EBENEZER.COM</title>
+<link rel="icon" href="favicon.ico">
+<style>
+:root{--blue:#0b64b3;--gold:#c49a2a;--white:#ffffff;--muted:#6b7280;}
+*{box-sizing:border-box}
+body{margin:0;font-family:Inter,system-ui,Arial,sans-serif;background:#f6f8fb;color:#0b1b2b;transition:background .25s,color .25s}
+.dark{background:#0b1220;color:#e6eef9}
+header{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;gap:1rem;padding:.6rem 1rem;background:rgba(255,255,255,.92);backdrop-filter:blur(6px);z-index:60}
+.brand{display:flex;flex-direction:column}
+.brand h1{margin:0;font-size:1.05rem;color:var(--blue);letter-spacing:0.6px}
+#subtitle{font-size:.78rem;white-space:nowrap;overflow:hidden;max-width:520px;color:var(--muted)}
+#subtitle span{display:inline-block;padding-left:100%;animation:scroll 28s linear infinite}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-200%)}}
+.search{flex:1;max-width:520px}
+input[type="search"]{width:100%;padding:.45rem .6rem;border-radius:8px;border:1px solid #d1d5db}
+.top-right{display:flex;gap:.5rem;align-items:center}
+.btn{padding:.45rem .7rem;border-radius:8px;border:0;background:var(--blue);color:#fff;cursor:pointer}
+.donate-top{background:var(--gold);color:#082033}
+main{padding:6.5rem 1rem 4rem;max-width:980px;margin:0 auto;display:grid;gap:1rem}
+.card{background:#fff;border-radius:12px;padding:1rem;box-shadow:0 6px 18px rgba(8,27,43,.06)}
+.dark .card{background:#0f1724;color:#e6eef9}
+.post-meta{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.post-actions{display:flex;gap:.5rem;align-items:center}
+.comment-box{margin-top:1rem;border-top:1px solid #e6e9ef;padding-top:.8rem}
+.comment{background:#f3f4f6;padding:.5rem;border-radius:8px;margin:.4rem 0}
+.dark .comment{background:#07202b}
+#topBtn{position:fixed;right:1rem;bottom:1rem;padding:.5rem .6rem;border-radius:8px;background:var(--blue);color:#fff;border:0;display:none;z-index:70}
+#adminBtn{position:fixed;left:1rem;bottom:1rem;padding:.6rem 1rem;border-radius:10px;background:var(--gold);border:0;color:#022231;font-weight:600;z-index:70}
+#donateTop{position:fixed;right:6.5rem;bottom:1rem;padding:.6rem 1rem;border-radius:10px;background:var(--gold);border:0;color:#022231;font-weight:600;z-index:70}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:80}
+.modal{background:linear-gradient(180deg,#fff,#f8fafc);padding:1.2rem;border-radius:12px;width:92%;max-width:720px;box-shadow:0 20px 40px rgba(2,6,23,.25)}
+.modal .close-btn{font-size:1.1rem;background:transparent;border:0;float:right;cursor:pointer}
+.admin-panel{width:100%;background:linear-gradient(180deg,#fff,#fbfdff);padding:1rem;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,.08)}
+.small{font-size:.85rem;color:var(--muted)}
+.stat-pill{background:#eef2ff;padding:.25rem .5rem;border-radius:999px;color:var(--blue);font-weight:600}
+.like-btn{background:transparent;border:1px solid #e6e9ef;padding:.25rem .5rem;border-radius:8px;cursor:pointer}
+footer{padding:1.5rem;text-align:center;color:var(--muted);margin-top:2rem}
+textarea,input,select{font-family:inherit}
+@media (max-width:640px){#subtitle{display:none} header{padding:.6rem} main{padding-top:7.5rem}}
+</style>
+</head>
+<body>
+
+<canvas id="bg" style="position:fixed;inset:0;z-index:-1"></canvas>
+
+<header id="head">
+  <div class="brand">
+    <h1>RAD. EBENEZER.COM</h1>
+    <div id="subtitle"><span>RAD. EBENEZER OKWUANASOR Public Webpage • Phone 08121817693 & 08116249601 • Email ebenezerokwuanasor@gmail.com</span></div>
+  </div>
+
+  <div class="search"><input id="search" type="search" placeholder="Search posts (title/content)..." /></div>
+
+  <div class="top-right">
+    <button id="donateBtnTop" class="btn donate-top">💖 Donate</button>
+    <button id="themeBtn" class="btn">🌞</button>
+  </div>
+</header>
+
+<main id="main">
+  <div id="adminPanelHolder" style="display:none;margin-bottom:.8rem"></div>
+  <div id="postsList"></div>
+</main>
+
+<button id="topBtn">↑</button>
+<button id="adminBtn">Admin</button>
+<button id="donateFloating" style="display:none">Donates</button>
+
+<!-- Donate modal -->
+<div id="donateModal" style="display:none">
+  <div class="modal-backdrop"><div class="modal">
+    <button class="close-btn" id="donateClose">❌</button>
+    <h3>Support the Vision</h3>
+    <p>
+      <strong>Account Option 1</strong><br>Bank: Palmpay<br>Account Name: Okwuanasor Francesca Nwamaka<br>Account Number: <strong>8116249601</strong><br><br>
+      <strong>Account Option 2</strong><br>Bank: PAGA<br>Account Name: Okwuanasor Francesca Nwamaka<br>Account Number: <strong>0590180601</strong><br><br>
+      Phone: 08121817693 / 08116249601<br>Email: ebenezerokwuanasor@gmail.com
+    </p>
+    <p style="margin-top:.6rem;font-style:italic">If you have made a donation, please contact me via email. Thanks for your support.</p>
+  </div></div>
+</div>
+
+<!-- Confirm modal -->
+<div id="confirmModal" style="display:none">
+  <div class="modal-backdrop"><div class="modal">
+    <button class="close-btn" id="confirmClose">❌</button>
+    <h3 id="confirmTitle">Confirm</h3>
+    <p id="confirmText">Are you sure?</p>
+    <div style="text-align:right"><button id="confirmCancel" class="btn" style="background:#e6e6e6;color:#222;margin-right:.6rem">Cancel</button><button id="confirmOK" class="btn">Yes</button></div>
+  </div></div>
+</div>
+
+<footer>
+  <div>© <span id="year"></span> RAD. EBENEZER OKWUANASOR — All rights reserved.</div>
+  <div class="small">Built with royal blue · white · gold</div>
+</footer>
+
+<script type="module" src="./firebase-comments.js"></script>
+<script>
+// basic UI wiring
+const el = id => document.getElementById(id);
+el('donateBtnTop').onclick = ()=> el('donateModal').style.display='block';
+el('donateClose').onclick = ()=> el('donateModal').style.display='none';
+el('themeBtn').onclick = ()=> { document.body.classList.toggle('dark'); el('themeBtn').textContent = document.body.classList.contains('dark')?'🌙':'🌞'; localStorage.setItem('theme', document.body.classList.contains('dark')?'dark':'light'); }
+if(localStorage.getItem('theme')==='dark'){ document.body.classList.add('dark'); el('themeBtn').textContent='🌙'; }
+
+document.getElementById('year').textContent = new Date().getFullYear();
+window.addEventListener('scroll',()=> el('topBtn').style.display = (document.documentElement.scrollTop>300)?'block':'none');
+el('topBtn').onclick = ()=> window.scrollTo({top:0,behavior:'smooth'});
+
+// open admin overlay
+el('adminBtn').onclick = ()=> { if(window.openAdminPanel) window.openAdminPanel(); else alert('Admin not available'); };
+
+// search filter
+el('search').addEventListener('input', e=>{
+  const q=e.target.value.toLowerCase();
+  document.querySelectorAll('.card').forEach(c=>{ c.style.display = c.textContent.toLowerCase().includes(q)?'block':'none'; });
+});
+
+// particle background simple
+const canvas = document.getElementById('bg'), ctx=canvas.getContext('2d');
+let w,h,particles=[];
+function resize(){ w=innerWidth; h=innerHeight; canvas.width=w; canvas.height=h; particles=Array.from({length:28},()=>({x:Math.random()*w,y:Math.random()*h,r:6+Math.random()*12,dx:(Math.random()-0.5)*0.6,dy:(Math.random()-0.5)*0.6})); }
+window.addEventListener('resize', resize); resize();
+function draw(){ ctx.clearRect(0,0,w,h); ctx.fillStyle = document.body.classList.contains('dark') ? 'rgba(10,255,255,0.06)' : 'rgba(11,100,179,0.06)'; particles.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); p.x+=p.dx; p.y+=p.dy; if(p.x<0||p.x>w)p.dx*=-1; if(p.y<0||p.y>h)p.dy*=-1; }); requestAnimationFrame(draw); }
+draw();
+</script>
+</body>
+</html>
