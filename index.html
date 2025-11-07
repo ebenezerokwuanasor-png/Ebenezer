@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RAD. EBENEZER — Public Webpage</title>
+<link rel="icon" href="data:;base64,iVBORw0KGgo=">
+<style>
+:root{--blue:#0b64b3;--gold:#c49a2a;--white:#ffffff;--muted:#6b7280}
+*{box-sizing:border-box}
+body{font-family:Inter,Arial,sans-serif;margin:0;background:#f6f8fb;color:#0b1b2b}
+.dark{background:#071323;color:#e6eef9}
+header{position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.7rem 1rem;background:rgba(255,255,255,.95);backdrop-filter:blur(6px);z-index:90}
+.brand{display:flex;align-items:center;gap:.6rem}
+.logo{width:44px;height:44px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;color:var(--white);font-weight:700;font-size:14px}
+.brand h1{margin:0;font-size:1rem;color:var(--blue)}
+#subtitle{font-size:.78rem;white-space:nowrap;overflow:hidden;max-width:520px;color:var(--muted)}
+#subtitle span{display:inline-block;padding-left:100%;animation:scroll 28s linear infinite}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-200%)}}
+.search{flex:1;max-width:520px}
+input[type="search"]{width:100%;padding:.45rem .6rem;border-radius:8px;border:1px solid #d1d5db}
+.top-right{display:flex;gap:.5rem;align-items:center}
+.btn{padding:.45rem .7rem;border-radius:8px;border:0;background:var(--blue);color:#fff;cursor:pointer}
+.donate-top{background:var(--gold);color:#082033}
+main{padding:6.8rem 1rem 4rem;max-width:980px;margin:0 auto;display:grid;gap:1rem;z-index:1;position:relative}
+.card{background:#fff;border-radius:12px;padding:1rem;box-shadow:0 6px 18px rgba(8,27,43,.06)}
+.dark .card{background:#071827;color:#e6eef9}
+.post-meta{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.post-actions{display:flex;gap:.5rem;align-items:center}
+.comment-box{margin-top:1rem;border-top:1px solid #e6e9ef;padding-top:.8rem}
+.comment{background:#f3f4f6;padding:.5rem;border-radius:8px;margin:.4rem 0}
+.dark .comment{background:#07202b}
+#topBtn{position:fixed;right:1rem;bottom:1rem;padding:.5rem .6rem;border-radius:8px;background:var(--blue);color:#fff;border:0;display:none;z-index:95}
+#adminBtn{position:fixed;left:1rem;bottom:1rem;padding:.6rem 1rem;border-radius:10px;background:var(--gold);border:0;color:#022231;font-weight:600;z-index:95}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:200}
+.modal{background:linear-gradient(180deg,#fff,#f8fafc);padding:1.2rem;border-radius:12px;width:94%;max-width:820px;box-shadow:0 20px 40px rgba(2,6,23,.25)}
+.modal .close-btn{font-size:1.1rem;background:transparent;border:0;float:right;cursor:pointer}
+.admin-panel{width:100%;background:linear-gradient(180deg,#fff,#fbfdff);padding:1rem;border-radius:12px;box-shadow:0 10px 30px rgba(2,6,23,.08)}
+.small{font-size:.85rem;color:var(--muted)}
+.stat-pill{background:#eef2ff;padding:.25rem .5rem;border-radius:999px;color:var(--blue);font-weight:600}
+.like-btn{background:transparent;border:1px solid #e6e9ef;padding:.25rem .5rem;border-radius:8px;cursor:pointer}
+footer{padding:1.5rem;text-align:center;color:var(--muted);margin-top:2rem}
+textarea,input,select,button{font-family:inherit}
+.file-preview{max-width:100%;border-radius:8px}
+.controls{display:flex;gap:.5rem;align-items:center;flex-wrap:wrap}
+@media (max-width:640px){#subtitle{display:none} header{padding:.6rem} main{padding-top:8.5rem}}
+</style>
+</head>
+<body>
+<canvas id="bg" style="position:fixed;inset:0;z-index:0"></canvas>
+
+<header>
+  <div class="brand">
+    <div class="logo">R-E-U</div>
+    <div>
+      <h1>RAD. EBENEZER.COM</h1>
+      <div id="subtitle"><span>RAD. EBENEZER OKWUANASOR Public Webpage • Phone 08121817693 & 08116249601 • Email ebenezerokwuanasor@gmail.com</span></div>
+    </div>
+  </div>
+
+  <div class="search"><input id="search" type="search" placeholder="Search posts (title/content)..." /></div>
+
+  <div class="top-right">
+    <button id="donateBtnTop" class="btn donate-top">💖 Donate</button>
+    <button id="exportBtn" class="btn" title="Export posts.json">⬇ Export</button>
+    <input id="importFile" type="file" accept=".json" style="display:none" />
+    <button id="importBtn" class="btn" title="Import posts.json">⬆ Import</button>
+    <button id="themeBtn" class="btn">🌞</button>
+  </div>
+</header>
+
+<main id="main">
+  <div id="stats" class="small" style="display:flex;gap:1rem;align-items:center"></div>
+  <div id="postsList"></div>
+</main>
+
+<button id="topBtn">↑</button>
+<button id="adminBtn">Admin</button>
+
+<!-- Donate modal -->
+<div id="donateModal" class="modal-backdrop"><div class="modal">
+  <button class="close-btn" id="donateClose">❌</button>
+  <h3>Support the Vision</h3>
+  <p><strong>Account Option 1</strong><br>Bank: Palmpay<br>Account Name: Okwuanasor Francesca Nwamaka<br>Account Number: <strong>8116249601</strong></p>
+  <p><strong>Account Option 2</strong><br>Bank: PAGA<br>Account Name: Okwuanasor Francesca Nwamaka<br>Account Number: <strong>0590180601</strong></p>
+  <p>Phone: 08121817693 / 08116249601<br>Email: ebenezerokwuanasor@gmail.com</p>
+  <p style="font-style:italic">If you have made a donation, please contact me via email. Thanks for your support.</p>
+</div></div>
+
+<!-- Admin modal -->
+<div id="adminModal" class="modal-backdrop"><div class="modal">
+  <button class="close-btn" id="adminClose">❌</button>
+  <div class="admin-panel">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <h3>Admin Panel</h3>
+      <div class="small">Admin mode</div>
+    </div>
+
+    <div style="margin-top:.6rem" id="adminMessages"></div>
+
+    <div style="margin-top:.6rem">
+      <label class="small">Admin pass</label>
+      <input id="adminPass" placeholder="Enter admin password" />
+    </div>
+
+    <div style="margin-top:.6rem">
+      <label class="small">Title</label>
+      <input id="admin-title" placeholder="Post title" />
+    </div>
+
+    <div style="margin-top:.6rem">
+      <label class="small">Content (HTML allowed)</label>
+      <textarea id="admin-content" style="height:120px"></textarea>
+    </div>
+
+    <div style="margin-top:.6rem;display:flex;gap:.6rem;align-items:center">
+      <input type="file" id="admin-file" accept="image/*,.pdf" />
+      <button id="uploadFileBtn" class="btn">Attach file</button>
+      <div id="uploadStatus" class="small"></div>
+    </div>
+
+    <div style="margin-top:.8rem;display:flex;gap:.6rem;justify-content:flex-end">
+      <button id="publishBtn" class="btn">Publish Post</button>
+      <button id="exportAdminBtn" class="btn">Download JSON</button>
+    </div>
+
+    <div style="margin-top:1rem">
+      <h4>Admin Tools</h4>
+      <div class="controls">
+        <button id="showStats" class="btn">Show Stats</button>
+        <button id="clearLocal" class="btn">Clear Local (visitor data)</button>
+      </div>
+      <div id="statsPanel" class="small" style="margin-top:.6rem"></div>
+    </div>
+  </div>
+</div></div>
+
+<footer>
+  <div>© <span id="year"></span> RAD. EBENEZER OKWUANASOR — All rights reserved.</div>
+  <div class="small">Built with royal blue · white · gold</div>
+</footer>
+
+<script>
+// --- Data model: posts array loaded from posts.json, plus local additions ---
+let posts = []; // each post: {id,title,content,createdAt,likes,comments: [{name,text,date}], imageData(optional)}
+const ADMIN_PASS = "@RADEBENEZER3008123400";
+
+// Utility: generate id
+function uid(){ return 'p_' + Math.random().toString(36).slice(2,9); }
+
+// UI refs
+const postsList = document.getElementById('postsList');
+const donateModal = document.getElementById('donateModal');
+const donateBtnTop = document.getElementById('donateBtnTop');
+const donateClose = document.getElementById('donateClose');
+const adminBtn = document.getElementById('adminBtn');
+const adminModal = document.getElementById('adminModal');
+const adminClose = document.getElementById('adminClose');
+const publishBtn = document.getElementById('publishBtn');
+const uploadFileBtn = document.getElementById('uploadFileBtn');
+const adminFile = document.getElementById('admin-file');
+const uploadStatus = document.getElementById('uploadStatus');
+const exportBtn = document.getElementById('exportBtn');
+const importBtn = document.getElementById('importBtn');
+const importFile = document.getElementById('importFile');
+const exportAdminBtn = document.getElementById('exportAdminBtn');
+const adminPassInput = document.getElementById('adminPass');
+const statsDiv = document.getElementById('stats');
+const showStatsBtn = document.getElementById('showStats');
+const clearLocalBtn = document.getElementById('clearLocal');
+const yearSpan = document.getElementById('year');
+yearSpan.textContent = new Date().getFullYear();
+
+// load initial posts.json
+async function loadInitial(){
+  try{
+    const r = await fetch('posts.json?_=' + Date.now());
+    if(!r.ok) throw new Error('posts.json not found');
+    const data = await r.json();
+    posts = data.map(p=>({...p, likes: p.likes||0, comments: p.comments||[]}));
+  }catch(e){
+    posts = [];
+  }
+  // load local saved posts (admin-added/exported)
+  const local = localStorage.getItem('rad_posts');
+  if(local){
+    try{
+      const arr = JSON.parse(local);
+      // merge new local posts at front
+      posts = arr.concat(posts);
+    }catch(e){}
+  }
+  renderAll();
+}
+loadInitial();
+
+// render functions
+function renderAll(){
+  postsList.innerHTML = '';
+  posts.forEach(p => renderPost(p));
+  updateStats();
+}
+function renderPost(p){
+  const el = document.createElement('div'); el.className = 'card'; el.id = p.id;
+  const created = new Date(p.createdAt || Date.now()).toLocaleString();
+  const likes = p.likes || 0;
+  el.innerHTML = `
+    <div class="post-meta">
+      <div><strong>${escapeHtml(p.title)}</strong><div class="small">${escapeHtml(created)}</div></div>
+      <div class="post-actions">
+        <div class="stat-pill" id="comments-count-${p.id}">${(p.comments||[]).length} comments</div>
+        <button class="like-btn" id="like-btn-${p.id}">❤️ <span id="like-count-${p.id}">${likes}</span></button>
+      </div>
+    </div>
+    <div style="margin-top:.6rem">${p.content || ''}</div>
+  `;
+  // image or file preview if present
+  if(p.imageData){
+    const img = document.createElement('img'); img.src = p.imageData; img.className='file-preview'; img.style.marginTop='.6rem';
+    el.appendChild(img);
+  }
+  // comments UI
+  const cb = document.createElement('div'); cb.className='comment-box';
+  cb.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center"><strong>Comments</strong></div><div id="comments-${p.id}" style="margin-top:.6rem"></div>
+    <textarea id="input-${p.id}" style="width:100%;height:64px;border-radius:8px;padding:.5rem;margin-top:.6rem" placeholder="Write a comment..."></textarea>
+    <div style="text-align:right;margin-top:.4rem"><button class="btn" onclick="addComment('${p.id}')">Post Comment</button></div>`;
+  el.appendChild(cb);
+  postsList.appendChild(el);
+
+  // populate comments
+  renderCommentsFor(p.id);
+
+  // like handler
+  document.getElementById(`like-btn-${p.id}`).onclick = ()=>{
+    p.likes = (p.likes||0) + 1;
+    document.getElementById(`like-count-${p.id}`).textContent = p.likes;
+    saveToLocal();
+    updateStats();
+  }
+}
+
+function renderCommentsFor(postId){
+  const container = document.getElementById('comments-' + postId);
+  container.innerHTML = '';
+  const p = posts.find(x=>x.id===postId);
+  if(!p || !p.comments) return;
+  p.comments.forEach((c,idx)=>{
+    const d = document.createElement('div'); d.className = 'comment';
+    const del = (isAdmin()) ? `<button style="float:right" onclick="deleteComment('${postId}',${idx})">Delete</button>` : '';
+    d.innerHTML = `<div style="display:flex;justify-content:space-between"><strong>${escapeHtml(c.name||'Anonymous')}</strong>${del}</div><div style="margin-top:.35rem">${escapeHtml(c.text)}</div><div class="small" style="margin-top:.35rem">${escapeHtml(c.date||'')}</div>`;
+    container.appendChild(d);
+  });
+  const countEl = document.getElementById('comments-count-' + postId);
+  if(countEl) countEl.textContent = (p.comments||[]).length + ' comments';
+}
+
+// add comment (visible to visitors until export/import)
+window.addComment = function(postId){
+  const ta = document.getElementById('input-' + postId);
+  if(!ta) return;
+  const text = ta.value.trim();
+  if(!text) return alert('Please write a comment');
+  const name = prompt('Enter your name:') || 'Anonymous';
+  const p = posts.find(x=>x.id===postId);
+  if(!p) return;
+  p.comments = p.comments || [];
+  p.comments.push({name, text, date: new Date().toLocaleString()});
+  ta.value = '';
+  renderCommentsFor(postId);
+  saveToLocal();
+}
+
+// delete comment (admin)
+window.deleteComment = function(postId, idx){
+  if(!isAdmin()) return alert('Admin only');
+  if(!confirm('Delete this comment?')) return;
+  const p = posts.find(x=>x.id===postId);
+  if(!p) return;
+  p.comments.splice(idx,1);
+  renderCommentsFor(postId);
+  saveToLocal();
+}
+
+// admin checks
+function isAdmin(){
+  return sessionStorage.getItem('rad_admin') === '1';
+}
+
+// admin open
+adminBtn.onclick = ()=>{
+  adminModal.style.display = 'flex';
+  document.getElementById('adminMessages').innerHTML = '<div class="small">Enter admin password to publish.</div>';
+}
+
+// close admin
+adminClose.onclick = ()=> adminModal.style.display = 'none';
+document.getElementById('donateClose').onclick = ()=> donateModal.style.display = 'none';
+document.getElementById('donateBtnTop').onclick = ()=> donateModal.style.display = 'flex';
+
+// upload file -> convert to dataURL and attach to content when published
+let pendingFileData = null;
+uploadFileBtn.onclick = ()=> {
+  if(!adminFile.files || !adminFile.files[0]) return alert('Choose a file first');
+  const f = adminFile.files[0];
+  const reader = new FileReader();
+  uploadStatus.textContent = 'Reading file...';
+  reader.onload = function(e){
+    pendingFileData = e.target.result; // data URL
+    uploadStatus.innerHTML = `Attached: ${f.name} (${Math.round(f.size/1024)} KB)`;
+  };
+  reader.onerror = function(){ uploadStatus.textContent = 'Failed to read file'; }
+  reader.readAsDataURL(f);
+}
+
+// publish post
+publishBtn.onclick = ()=>{
+  const pass = adminPassInput.value || '';
+  if(pass !== ADMIN_PASS) return alert('Incorrect admin password');
+  // set admin session
+  sessionStorage.setItem('rad_admin','1');
+  document.getElementById('adminMessages').innerHTML = '<div class="small" style="color:green">Admin unlocked.</div>';
+  const title = document.getElementById('admin-title').value.trim();
+  const content = document.getElementById('admin-content').value.trim();
+  if(!title || !content) return alert('Title and content required');
+  const newPost = { id: uid(), title, content, createdAt: new Date().toISOString(), likes:0, comments:[] };
+  if(pendingFileData){
+    newPost.imageData = pendingFileData;
+    pendingFileData = null;
+    adminFile.value = '';
+    uploadStatus.textContent = '';
+  }
+  // add to front and save to local
+  posts.unshift(newPost);
+  saveToLocal();
+  renderAll();
+  document.getElementById('admin-title').value=''; document.getElementById('admin-content').value='';
+  adminModal.style.display = 'none';
+  alert('Post published locally. Export JSON to save permanently.');
+}
+
+// export posts to download posts.json
+exportBtn.onclick = exportPosts;
+exportAdminBtn.onclick = exportPosts;
+function exportPosts(){
+  const data = JSON.stringify(posts, null, 2);
+  const blob = new Blob([data], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'posts.json'; document.body.appendChild(a); a.click();
+  a.remove(); URL.revokeObjectURL(url);
+}
+
+// import posts.json (replace current posts)
+importBtn.onclick = ()=> importFile.click();
+importFile.onchange = function(e){
+  const f = e.target.files[0];
+  if(!f) return;
+  const reader = new FileReader();
+  reader.onload = function(ev){
+    try{
+      const arr = JSON.parse(ev.target.result);
+      if(!Array.isArray(arr)) return alert('Invalid posts JSON');
+      if(!confirm('Import will replace current posts. Continue?')) return;
+      posts = arr.map(p=>({...p, likes:p.likes||0, comments:p.comments||[]}));
+      saveToLocal();
+      renderAll();
+      alert('Imported successfully');
+    }catch(err){ alert('Invalid JSON file'); }
+  };
+  reader.readAsText(f);
+}
+
+// save to localStorage (for persistence across reloads)
+function saveToLocal(){
+  try{
+    localStorage.setItem('rad_posts', JSON.stringify(posts));
+  }catch(e){ console.warn('save failed', e); }
+  updateStats();
+}
+
+// load from localStorage optionally on start - handled in loadInitial
+
+// search filter
+document.getElementById('search').addEventListener('input', e=>{
+  const q = e.target.value.toLowerCase();
+  document.querySelectorAll('.card').forEach(c=>{
+    c.style.display = c.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+
+// stats and admin tools
+function updateStats(){
+  const totalPosts = posts.length;
+  const totalLikes = posts.reduce((s,p)=>s+(p.likes||0),0);
+  const totalComments = posts.reduce((s,p)=>s+(p.comments?p.comments.length:0),0);
+  statsDiv.innerHTML = `<div class="small">Posts: ${totalPosts}</div><div class="small">Likes: ${totalLikes}</div><div class="small">Comments: ${totalComments}</div>`;
+  document.getElementById('statsPanel').textContent = `Posts: ${totalPosts} · Likes: ${totalLikes} · Comments: ${totalComments}`;
+}
+showStatsBtn.onclick = ()=> alert(document.getElementById('statsPanel').textContent || 'No stats');
+clearLocalBtn.onclick = ()=> { if(confirm('Clear local visitor data?')){ localStorage.removeItem('rad_posts'); posts = posts.filter(p=>!p._local); renderAll(); } };
+
+// helper escape
+function escapeHtml(s){ if(!s) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;'); }
+
+// top button and theme
+const topBtn = document.getElementById('topBtn');
+window.addEventListener('scroll', ()=> topBtn.style.display = (document.documentElement.scrollTop>300)?'block':'none');
+topBtn.onclick = ()=> window.scrollTo({top:0,behavior:'smooth'});
+const themeBtn = document.getElementById('themeBtn');
+themeBtn.onclick = ()=> { document.body.classList.toggle('dark'); themeBtn.textContent = document.body.classList.contains('dark')?'🌙':'🌞'; localStorage.setItem('theme', document.body.classList.contains('dark')?'dark':'light'); }
+if(localStorage.getItem('theme')==='dark'){ document.body.classList.add('dark'); themeBtn.textContent='🌙'; }
+
+// particle background
+const canvas = document.getElementById('bg'), ctx = canvas.getContext('2d');
+let w,h,particles=[];
+function resize(){ w=innerWidth; h=innerHeight; canvas.width=w; canvas.height=h; particles=Array.from({length:28},()=>({x:Math.random()*w,y:Math.random()*h,r:6+Math.random()*12,dx:(Math.random()-0.5)*0.6,dy:(Math.random()-0.5)*0.6})); }
+window.addEventListener('resize', resize); resize();
+function draw(){ ctx.clearRect(0,0,w,h); ctx.fillStyle = document.body.classList.contains('dark') ? 'rgba(10,255,255,0.06)' : 'rgba(11,100,179,0.06)'; particles.forEach(p=>{ ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); p.x+=p.dx; p.y+=p.dy; if(p.x<0||p.x>w)p.dx*=-1; if(p.y<0||p.y>h)p.dy*=-1; }); requestAnimationFrame(draw); }
+draw();
+
+// initial render call
+function initialRender(){
+  renderAll();
+  updateStats();
+}
+setTimeout(initialRender,500);
+</script>
+</body>
+</html>
