@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAD. EBENEZER.COM</title>
+<style>
+  body {margin:0;font-family:Poppins,Arial,sans-serif;background:#f9fafc;color:#111;transition:background 0.5s,color 0.5s;}
+  header{position:fixed;top:0;width:100%;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0.5rem 1rem;box-shadow:0 2px 8px rgba(0,0,0,0.1);z-index:10;}
+  header h2{color:royalblue;margin:0;}
+  .search input{padding:0.4rem;border-radius:6px;border:1px solid #ccc;}
+  button{cursor:pointer;border:none;border-radius:6px;padding:0.5rem 1rem;}
+  .donate-btn{background:gold;color:#000;margin-left:10px;}
+  main{padding:6rem 1rem 3rem;max-width:900px;margin:auto;}
+  .card{background:#fff;border-radius:1rem;padding:1rem;box-shadow:0 4px 10px rgba(0,0,0,0.1);margin-bottom:1rem;}
+  .like-btn{background:royalblue;color:white;margin-top:.5rem;}
+  footer{text-align:center;padding:1rem;font-size:0.9rem;color:#555;}
+  .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:20;}
+  .modal-content{background:white;padding:2rem;border-radius:10px;width:90%;max-width:400px;text-align:center;position:relative;}
+  .close-btn{position:absolute;top:10px;right:15px;background:none;border:none;font-size:20px;cursor:pointer;}
+  #adminOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);align-items:center;justify-content:center;z-index:30;}
+  #adminForm{background:white;padding:2rem;border-radius:10px;max-width:400px;width:90%;}
+</style>
+</head>
+<body>
+
+<header>
+  <h2>RAD. EBENEZER.COM</h2>
+  <div class="search"><input type="search" id="search" placeholder="Search posts..."></div>
+  <div>
+    <button class="donate-btn" id="donateBtn">Donate</button>
+    <button id="adminBtn">Admin</button>
+  </div>
+</header>
+
+<main id="posts"></main>
+<footer>© 2025 RAD. EBENEZER OKWUANASOR</footer>
+
+<!-- Donate Modal -->
+<div class="modal" id="donateModal">
+  <div class="modal-content">
+    <button class="close-btn" id="closeDonate">❌</button>
+    <h3>Support the Vision</h3>
+    <p>
+      <b>Account 1:</b> 8116249601 – Okwuanasor Francesca Nwamaka – Palmpay<br>
+      <b>Account 2:</b> 0590180601 – Okwuanasor Francesca Nwamaka – PAGA<br><br>
+      <b>Email:</b> ebenezerokwuanasor@gmail.com<br>
+      <b>Phone:</b> 08121817693 / 08116249601<br><br>
+      <i>If you have made donations, please contact me via email. Thanks for your support.</i>
+    </p>
+  </div>
+</div>
+
+<!-- Admin Overlay -->
+<div id="adminOverlay">
+  <div id="adminForm">
+    <h3>Create New Post</h3>
+    <input type="text" id="postTitle" placeholder="Post Title" style="width:100%;margin-bottom:10px;"><br>
+    <textarea id="postContent" placeholder="Post Content" rows="4" style="width:100%;margin-bottom:10px;"></textarea><br>
+    <button id="savePost">Post</button>
+    <button onclick="closeAdmin()">Cancel</button>
+  </div>
+</div>
+
+<script>
+const ADMIN_PASS = "@RADEBENEZER3008123400";
+const postsContainer = document.getElementById("posts");
+const donateBtn = document.getElementById("donateBtn");
+const donateModal = document.getElementById("donateModal");
+const closeDonate = document.getElementById("closeDonate");
+const adminBtn = document.getElementById("adminBtn");
+const adminOverlay = document.getElementById("adminOverlay");
+const savePost = document.getElementById("savePost");
+let adminMode = false;
+
+// Load posts from localStorage or posts.json
+async function loadPosts() {
+  let posts = JSON.parse(localStorage.getItem("postsData") || "[]");
+  if (posts.length === 0) {
+    const res = await fetch("posts.json");
+    posts = await res.json();
+    localStorage.setItem("postsData", JSON.stringify(posts));
+  }
+  displayPosts(posts);
+}
+
+function displayPosts(posts) {
+  postsContainer.innerHTML = "";
+  posts.forEach((p, i) => {
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <h3>${p.title}</h3>
+      <small>${p.date}</small>
+      <p>${p.content}</p>
+      <button class="like-btn" onclick="likePost(${i})">❤️ Like (<span id='likes-${i}'>${p.likes||0}</span>)</button>
+      <div class='comment-box'>
+        <textarea id="comment-${i}" rows="2" style="width:100%;" placeholder="Write a comment..."></textarea>
+        <button onclick="addComment(${i})">Post Comment</button>
+        <div id="comments-${i}"></div>
+      </div>`;
+    postsContainer.appendChild(card);
+    renderComments(i);
+  });
+}
+
+function likePost(i) {
+  let posts = JSON.parse(localStorage.getItem("postsData"));
+  posts[i].likes = (posts[i].likes || 0) + 1;
+  localStorage.setItem("postsData", JSON.stringify(posts));
+  document.getElementById('likes-'+i).textContent = posts[i].likes;
+}
+
+function addComment(i) {
+  const txt = document.getElementById('comment-'+i).value.trim();
+  if (!txt) return;
+  const name = prompt("Enter your name:");
+  let comments = JSON.parse(localStorage.getItem("comments-"+i) || "[]");
+  comments.push({name: name||"Anonymous", text: txt});
+  localStorage.setItem("comments-"+i, JSON.stringify(comments));
+  document.getElementById('comment-'+i).value = "";
+  renderComments(i);
+}
+
+function renderComments(i) {
+  const div = document.getElementById('comments-'+i);
+  const c = JSON.parse(localStorage.getItem("comments-"+i) || "[]");
+  div.innerHTML = c.map(x => `<p><b>${x.name}</b>: ${x.text}</p>`).join("");
+}
+
+// Admin features
+adminBtn.onclick = () => {
+  const pass = prompt("Enter admin passcode:");
+  if (pass === ADMIN_PASS) {
+    adminMode = true;
+    adminOverlay.style.display = "flex";
+  } else alert("Incorrect passcode");
+};
+function closeAdmin() { adminOverlay.style.display = "none"; }
+
+savePost.onclick = () => {
+  if (!adminMode) return alert("Access denied");
+  const title = document.getElementById("postTitle").value;
+  const content = document.getElementById("postContent").value;
+  if (!title || !content) return alert("Please fill all fields");
+  const posts = JSON.parse(localStorage.getItem("postsData") || "[]");
+  posts.unshift({title, content, date: new Date().toISOString().split("T")[0]});
+  localStorage.setItem("postsData", JSON.stringify(posts));
+  displayPosts(posts);
+  closeAdmin();
+};
+
+// Donate modal
+donateBtn.onclick = () => donateModal.style.display = "flex";
+closeDonate.onclick = () => donateModal.style.display = "none";
+
+// Search posts
+document.getElementById("search").oninput = (e) => {
+  const q = e.target.value.toLowerCase();
+  document.querySelectorAll(".card").forEach(c => {
+    c.style.display = c.textContent.toLowerCase().includes(q) ? "block" : "none";
+  });
+};
+
+loadPosts();
+</script>
+</body>
+</html>
