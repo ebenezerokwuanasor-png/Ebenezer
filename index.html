@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAD. EBENEZER.COM</title>
+<style>
+/* ----- GENERAL STYLES ----- */
+body {margin:0; font-family: 'Poppins', Arial, sans-serif; transition: background 0.5s, color 0.5s;}
+.dark {background:#111827; color:#fff;}
+header {position:fixed; top:0; width:100%; display:flex; align-items:center; justify-content:space-between; background:#ffffffcc; backdrop-filter:blur(8px); padding:0.5rem 1rem; z-index:10;}
+header.dark {background:#111827cc; color:#fff;}
+h2 {margin:0;}
+#subtitle {font-size:0.9rem; white-space:nowrap; overflow:hidden; width:100%; animation:scrollText 25s linear infinite;}
+@keyframes scrollText {0%{transform:translateX(100%);}100%{transform:translateX(-100%);}}
+.search {flex:1; margin:0 1rem;}
+input[type="search"]{width:100%; padding:0.4rem; border-radius:0.5rem; border:1px solid #ccc;}
+button{cursor:pointer; border:none; border-radius:0.5rem; padding:0.5rem 1rem;}
+#adminBtn{background:#0078ff; color:#fff; margin-right:0.5rem;}
+#donateBtn{background:#ff007f; color:#fff;}
+#themeBtn{background:#fff; color:#000; margin-left:0.5rem;}
+main{padding:6rem 1rem 3rem; display:grid; gap:1.5rem; max-width:900px; margin:auto;}
+.card{background:#fff; border-radius:1rem; padding:1rem; box-shadow:0 4px 10px rgba(0,0,0,0.1); transition:transform 0.3s;}
+.card:hover{transform:translateY(-5px);}
+.dark .card{background:#1f2937; color:#fff;}
+footer{text-align:center; padding:2rem 0; color:#555;}
+#topBtn{position:fixed; bottom:2rem; right:2rem; display:none; background:#0078ff; color:#fff; padding:0.5rem 1rem;}
+canvas#bg{position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1;}
+.modal{position:fixed; top:0; left:0; width:100%; height:100%; background:#0007; display:none; align-items:center; justify-content:center;}
+.modal-content{background:#fff; padding:2rem; border-radius:1rem; max-width:400px; text-align:center; position:relative;}
+.modal-content button.closeBtn{position:absolute; top:0.5rem; right:0.5rem; background:#ff3b3b; color:#fff;}
+.download-btn{background:#00bfff; color:#fff; margin-top:0.5rem;}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<header id="head">
+  <div style="display:flex; flex-direction:column; flex:1;">
+    <div style="display:flex; align-items:center;">
+      <button id="adminBtn">Admin</button>
+      <h2 style="margin-left:10px;">RAD. EBENEZER.COM</h2>
+    </div>
+    <div id="subtitle">RAD. EBENEZER OKWUANASOR Public Webpage • Phone 08121817693 & 08116249601 • Email ebenezerokwuanasor@gmail.com</div>
+  </div>
+  <div class="search"><input id="search" type="search" placeholder="Search posts..."></div>
+  <div style="display:flex; align-items:center;">
+    <button id="donateBtn">Donate</button>
+    <button id="themeBtn">🌞</button>
+  </div>
+</header>
+
+<main id="posts"></main>
+
+<footer>© 2025 RAD. EBENEZER OKWUANASOR</footer>
+<button id="topBtn">↑</button>
+
+<div class="modal" id="donateModal">
+  <div class="modal-content">
+    <button class="closeBtn" id="closeDonate">❌</button>
+    <h3>Support the Vision</h3>
+    <p>
+      Account 1: 8116249601 – Okwuanasor Francesca Nwamaka – Palmpay<br>
+      Account 2: 0590180601 – Okwuanasor Francesca Nwamaka – PAGA<br>
+      Email: ebenezerokwuanasor@gmail.com<br>
+      Phone: 08121817693 & 08116249601
+    </p>
+    <p>If you have made donations, please contact me via email. Thanks for your support.</p>
+  </div>
+</div>
+
+<script>
+// ----- POSTS DATA -----
+let posts = [];
+const postsContainer = document.getElementById('posts');
+const searchInput = document.getElementById('search');
+
+// ----- THEME -----
+let dark=false;
+const themeBtn=document.getElementById('themeBtn');
+themeBtn.onclick=()=>{
+  dark=!dark;
+  document.body.classList.toggle('dark',dark);
+  document.getElementById('head').classList.toggle('dark',dark);
+  themeBtn.textContent = dark?'🌙':'🌞';
+  localStorage.setItem('theme',dark?'dark':'light');
+};
+if(localStorage.getItem('theme')==='dark'){
+  dark=true; document.body.classList.add('dark'); document.getElementById('head').classList.add('dark'); themeBtn.textContent='🌙';
+}
+
+// ----- DONATE MODAL -----
+const donateModal = document.getElementById('donateModal');
+document.getElementById('donateBtn').onclick = ()=> donateModal.style.display='flex';
+document.getElementById('closeDonate').onclick = ()=> donateModal.style.display='none';
+
+// ----- SCROLL TOP -----
+const topBtn = document.getElementById('topBtn');
+window.onscroll = ()=> topBtn.style.display=(document.documentElement.scrollTop>300)?'block':'none';
+topBtn.onclick = ()=> window.scrollTo({top:0, behavior:'smooth'});
+
+// ----- ADMIN -----
+const adminBtn = document.getElementById('adminBtn');
+const ADMIN_PASS="@RADEBENEZER3008123400";
+adminBtn.onclick = ()=>{
+  const pass = prompt("Enter admin password:");
+  if(pass!==ADMIN_PASS){alert("Incorrect password"); return;}
+  const title = prompt("Post Title:");
+  const content = prompt("Post Content (text only for demo):");
+  const downloadLink = prompt("Download link (URL of file to download) or leave blank:");
+  const date = new Date().toLocaleDateString();
+  const postObj = {title, content, date, download:downloadLink};
+  posts.push(postObj);
+  renderPosts();
+  downloadPostsJSON();
+}
+
+// ----- SEARCH -----
+searchInput.oninput = ()=>{
+  const q = searchInput.value.toLowerCase();
+  document.querySelectorAll('.card').forEach(c=>{
+    c.style.display = c.textContent.toLowerCase().includes(q)?'block':'none';
+  });
+}
+
+// ----- RENDER POSTS -----
+function renderPosts(){
+  postsContainer.innerHTML='';
+  posts.forEach((p,i)=>{
+    const card=document.createElement('div'); card.className='card';
+    card.innerHTML = `<h3>${p.title}</h3><small>${p.date}</small><p>${p.content}</p>`;
+    if(p.download) card.innerHTML+=`<a href="${p.download}" download><button class="download-btn">Download</button></a>`;
+    postsContainer.appendChild(card);
+  });
+}
+
+// ----- DOWNLOAD posts.json -----
+function downloadPostsJSON(){
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(posts, null, 2));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute("href", dataStr);
+  dlAnchor.setAttribute("download","posts.json");
+  dlAnchor.click();
+}
+
+// ----- ANIMATED BACKGROUND -----
+const c=document.getElementById('bg'),ctx=c.getContext('2d');
+let w,h,symbols=[];
+function resize(){w=innerWidth; h=innerHeight; c.width=w; c.height=h; symbols=Array.from({length:30},()=>({x:Math.random()*w, y:Math.random()*h, r:8+Math.random()*12, dx:(Math.random()-0.5)*0.5, dy:(Math.random()-0.5)*0.5}));}
+window.onresize=resize; resize();
+function animate(){
+  ctx.clearRect(0,0,w,h);
+  ctx.fillStyle=dark?'#0ff5':'#00bfff44';
+  symbols.forEach(s=>{
+    ctx.beginPath();
+    ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fill();
+    s.x+=s.dx; s.y+=s.dy;
+    if(s.x<0||s.x>w) s.dx*=-1;
+    if(s.y<0||s.y>h) s.dy*=-1;
+  });
+  requestAnimationFrame(animate);
+}
+animate();
+</script>
+</body>
+</html>
