@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAD. EBENEZER.COM</title>
+<style>
+  /* Basic Reset */
+  *{margin:0;padding:0;box-sizing:border-box;font-family:Poppins, sans-serif;}
+  body{background:#f7f9fc;transition:background 0.5s;color:#111;}
+  
+  /* Header */
+  header{position:fixed;top:0;width:100%;background:#ffffffcc;backdrop-filter:blur(10px);
+         display:flex;justify-content:space-between;align-items:center;padding:0.5rem 1rem;z-index:10;}
+  header h2{font-size:1.2rem;color:#0078ff;}
+  .top-buttons{display:flex;align-items:center;gap:0.5rem;}
+  
+  /* Buttons */
+  button{padding:0.5rem 1rem;border:none;border-radius:0.5rem;cursor:pointer;font-weight:600;}
+  #adminBtn{background:#ff007f;color:#fff;}
+  #donateBtn{background:#ffd700;color:#111;}
+  #themeBtn{background:#0078ff;color:#fff;}
+  
+  /* Search */
+  input[type="search"]{padding:0.4rem 0.6rem;border-radius:0.5rem;border:1px solid #ccc;}
+
+  /* Main posts area */
+  main{padding:6rem 1rem 3rem;display:grid;gap:1rem;max-width:900px;margin:auto;}
+  .card{background:#fff;padding:1rem;border-radius:1rem;box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+  .card:hover{transform:translateY(-3px);transition:0.3s;}
+  .card h3{color:#0078ff;}
+  .card p{margin-top:0.5rem;}
+  
+  /* Floating overlays */
+  .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:#000a;display:none;
+           justify-content:center;align-items:center;z-index:20;}
+  .overlay-content{background:#fff;padding:2rem;border-radius:1rem;max-width:500px;width:90%;position:relative;}
+  .overlay-content h3{margin-bottom:1rem;color:#0078ff;}
+  .close-btn{position:absolute;top:0.5rem;right:0.5rem;background:#ff3b3b;color:#fff;border:none;border-radius:50%;
+             width:30px;height:30px;font-weight:bold;cursor:pointer;}
+  
+  /* Upload input */
+  input[type="file"]{margin:0.5rem 0;}
+</style>
+</head>
+<body>
+
+<header>
+  <button id="adminBtn">Admin</button>
+  <h2>RAD. EBENEZER.COM</h2>
+  <div class="top-buttons">
+    <input type="search" id="search" placeholder="Search posts...">
+    <button id="donateBtn">Donate</button>
+  </div>
+</header>
+
+<main id="posts"></main>
+
+<!-- Admin Overlay -->
+<div class="overlay" id="adminOverlay">
+  <div class="overlay-content">
+    <button class="close-btn" id="adminClose">❌</button>
+    <h3>Admin Panel</h3>
+    <label>Admin Password:</label>
+    <input type="password" id="adminPass" placeholder="Enter password"><br><br>
+    <label>Post Title:</label>
+    <input type="text" id="postTitle" placeholder="Post Title"><br><br>
+    <label>Post Body:</label>
+    <textarea id="postBody" rows="4" placeholder="Post content"></textarea><br><br>
+    <label>Upload Media:</label>
+    <input type="file" id="postMedia"><br><br>
+    <button id="postSubmit">Post</button>
+    <button id="adminCancel">Cancel</button>
+    <p id="adminMsg" style="color:red;margin-top:0.5rem;"></p>
+  </div>
+</div>
+
+<!-- Donate Overlay -->
+<div class="overlay" id="donateOverlay">
+  <div class="overlay-content">
+    <button class="close-btn" id="donateClose">❌</button>
+    <h3>Support the Vision</h3>
+    <p>
+      <strong>Palmpay:</strong><br>
+      Acc No: 8116249601<br>
+      Acc Name: Okwuanasor Francesca Nwamaka
+    </p>
+    <p>
+      <strong>PAGA:</strong><br>
+      Acc No: 0590180601<br>
+      Acc Name: Okwuanasor Francesca Nwamaka
+    </p>
+    <p>Email: ebenezerokwuanasor@gmail.com</p>
+    <p>Phone: 08121817693 & 08116249601</p>
+    <p>If you have made donations, please contact me via email. Thanks for your support.</p>
+  </div>
+</div>
+
+<script>
+const ADMIN_PASSWORD = "@RADEBENEZER3008123400";
+let adminAttempts = 0;
+
+const adminBtn = document.getElementById('adminBtn');
+const adminOverlay = document.getElementById('adminOverlay');
+const adminClose = document.getElementById('adminClose');
+const adminCancel = document.getElementById('adminCancel');
+const postSubmit = document.getElementById('postSubmit');
+const adminMsg = document.getElementById('adminMsg');
+
+const donateBtn = document.getElementById('donateBtn');
+const donateOverlay = document.getElementById('donateOverlay');
+const donateClose = document.getElementById('donateClose');
+
+const postsContainer = document.getElementById('posts');
+const searchInput = document.getElementById('search');
+
+let posts = [];
+
+// Load posts.json (placeholder initial)
+fetch('posts.json')
+  .then(res=>res.json())
+  .then(data=>{posts=data; renderPosts();});
+
+// Render posts
+function renderPosts(){
+  postsContainer.innerHTML = '';
+  posts.forEach((p,i)=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `<h3>${p.title}</h3>
+                      <small>${p.date}</small>
+                      <p>${p.content}</p>
+                      ${p.media?`<a href="${p.media}" download><button>Download</button></a>`:''}`;
+    postsContainer.appendChild(card);
+  });
+}
+
+// Search posts
+searchInput.oninput = () => {
+  const query = searchInput.value.toLowerCase();
+  document.querySelectorAll('.card').forEach(c=>{
+    c.style.display = c.textContent.toLowerCase().includes(query) ? 'block' : 'none';
+  });
+};
+
+// Admin overlay
+adminBtn.onclick = () => {
+  adminOverlay.style.display = 'flex';
+  adminMsg.textContent = '';
+};
+
+adminClose.onclick = adminCancel.onclick = () => {
+  adminOverlay.style.display = 'none';
+};
+
+// Donate overlay
+donateBtn.onclick = () => donateOverlay.style.display = 'flex';
+donateClose.onclick = () => donateOverlay.style.display = 'none';
+
+// Posting function
+postSubmit.onclick = () => {
+  const pass = document.getElementById('adminPass').value;
+  if(pass !== ADMIN_PASSWORD){
+    adminAttempts++;
+    adminMsg.textContent = `Incorrect password (${adminAttempts}/5)`;
+    if(adminAttempts >=5){
+      adminBtn.disabled = true;
+      adminMsg.textContent = 'Admin locked for 24hrs!';
+    }
+    return;
+  }
+  const title = document.getElementById('postTitle').value;
+  const body = document.getElementById('postBody').value;
+  const mediaFile = document.getElementById('postMedia').files[0];
+  if(!title || !body){
+    adminMsg.textContent = "Title and body are required!";
+    return;
+  }
+
+  const date = new Date().toLocaleDateString();
+  const newPost = {title:title, date:date, content:body};
+  if(mediaFile){
+    newPost.media = URL.createObjectURL(mediaFile);
+  }
+  posts.push(newPost);
+  renderPosts();
+  
+  // Auto-download updated posts.json
+  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(posts, null, 2));
+  const dlAnchor = document.createElement('a');
+  dlAnchor.setAttribute("href", dataStr);
+  dlAnchor.setAttribute("download", "posts.json");
+  dlAnchor.click();
+
+  // Reset form
+  document.getElementById('postTitle').value = '';
+  document.getElementById('postBody').value = '';
+  document.getElementById('postMedia').value = '';
+  adminOverlay.style.display = 'none';
+};
+</script>
+</body>
+</html>
