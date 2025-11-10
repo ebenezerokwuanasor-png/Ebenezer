@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RAD. EBENEZER.COM — Rad-Ebenezer</title>
+
+<!-- jsPDF for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- Simple icon font (optional) -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+<style>
+:root{
+  --blue:#0b64b3; --gold:#c49a2a; --white:#ffffff; --muted:#6b7280;
+  --card-shadow: 0 8px 30px rgba(2,6,23,.06);
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;}
+body{background:#f6f8fb;color:#0b1b2b;transition:background .3s,color .3s}
+.dark{background:#071323;color:#e6eef9}
+.header{
+  position:fixed;top:0;left:0;right:0;display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;padding:.8rem 1rem;background:rgba(255,255,255,.98);backdrop-filter:blur(6px);z-index:120;border-bottom:1px solid rgba(0,0,0,0.04)
+}
+.brand{display:flex;align-items:center;gap:.6rem}
+.logo{width:46px;height:46px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center;color:var(--white);font-weight:800}
+.title{font-size:1rem;color:var(--blue);margin:0}
+.subtitle{font-size:.78rem;color:var(--muted);max-width:540px;white-space:nowrap;overflow:hidden}
+.subtitle span{display:inline-block;padding-left:100%;animation:scroll 28s linear infinite}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-200%)}}
+
+.top-controls{display:flex;gap:.5rem;align-items:center}
+.search{flex:1;max-width:520px}
+.search input{width:100%;padding:.45rem .6rem;border-radius:8px;border:1px solid #d1d5db}
+
+.btn{
+  padding:.45rem .7rem;border-radius:8px;border:0;background:var(--blue);color:#fff;cursor:pointer;font-weight:600;
+}
+.btn.ghost{background:transparent;color:var(--blue);border:1px solid rgba(11,100,179,.12)}
+.btn.gold{background:var(--gold);color:#082033}
+.btn.small{padding:.35rem .5rem;font-size:.9rem;border-radius:6px}
+
+main{padding:7.4rem 1rem 4rem;max-width:980px;margin:0 auto;display:block}
+.banner{
+  background:linear-gradient(90deg, rgba(11,100,179,.08), rgba(196,154,42,.06));
+  border-radius:12px;padding:1rem;margin-bottom:1rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;box-shadow:var(--card-shadow);
+}
+.banner .verse{font-weight:600;color:var(--blue)}
+.banner .small{color:var(--muted);font-size:.9rem}
+
+.controls-row{display:flex;gap:.6rem;align-items:center;margin-bottom:.8rem;flex-wrap:wrap}
+.filter{display:flex;gap:.5rem;align-items:center}
+.select{padding:.4rem;border-radius:8px;border:1px solid #e6e9ef}
+
+.card{background:#fff;border-radius:12px;padding:1rem;box-shadow:var(--card-shadow);margin-bottom:1rem;opacity:0;transform:translateY(6px);animation:fadeIn .5s forwards}
+@keyframes fadeIn{to{opacity:1;transform:none}}
+
+.post-meta{display:flex;justify-content:space-between;align-items:center;gap:1rem}
+.post-actions{display:flex;gap:.5rem;align-items:center}
+.file-preview{max-width:100%;border-radius:8px;display:block;margin-top:.6rem}
+.small{font-size:.85rem;color:var(--muted)}
+
+.toast{
+  position:fixed;right:1rem;bottom:1rem;background:var(--blue);color:#fff;padding:.6rem 1rem;border-radius:8px;z-index:140;display:none;box-shadow:0 8px 30px rgba(2,6,23,.2)
+}
+
+#topBtn{position:fixed;right:1rem;bottom:4.5rem;padding:.5rem .7rem;border-radius:8px;background:var(--blue);color:#fff;border:0;display:none;z-index:95}
+.theme-toggle{background:#fff;color:var(--blue);border:1px solid rgba(11,100,179,.12)}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:300}
+.modal{background:#fff;padding:1.2rem;border-radius:12px;width:94%;max-width:920px;box-shadow:0 20px 40px rgba(2,6,23,.25);position:relative}
+.modal .close{position:absolute;right:12px;top:8px;border:0;background:transparent;font-size:20px;cursor:pointer}
+
+.about-content img{width:96px;height:96px;border-radius:12px;object-fit:cover;margin-right:12px}
+
+.visitor-pill{background:#eef6ff;padding:.25rem .6rem;border-radius:999px;color:var(--blue);font-weight:700}
+
+.footer{padding:2rem;text-align:center;color:var(--muted);margin-top:2rem}
+.category-pill{background:#f3f4f6;padding:.2rem .5rem;border-radius:999px;font-weight:600;color:#333;border:1px solid #eee}
+
+.share-row{display:flex;gap:.5rem;align-items:center;margin-top:.5rem}
+
+.input, textarea{width:100%;padding:.5rem;border-radius:8px;border:1px solid #e6e9ef}
+
+@media (max-width:720px){
+  .post-meta{flex-direction:column;align-items:flex-start;gap:.4rem}
+  .subtitle{display:none}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="brand">
+    <div class="logo">R-E-U</div>
+    <div>
+      <div class="title">RAD. EBENEZER.COM</div>
+      <div class="subtitle"><span id="subtitleText">RAD. EBENEZER OKWUANASOR Public Webpage • Phone 08121817693 & 08116249601 • Email ebenezerokwuanasor@gmail.com</span></div>
+    </div>
+  </div>
+
+  <div class="search" style="flex:1;margin:0 12px">
+    <input id="searchInput" type="search" placeholder="Search posts (title/content)..." />
+  </div>
+
+  <div class="top-controls">
+    <div class="visitor-pill small" id="visitorCounter">👁 0</div>
+    <button id="aboutBtn" class="btn small ghost">About</button>
+    <button id="donateBtn" class="btn gold">💖 Donate</button>
+    <button id="adminBtn" class="btn">Admin</button>
+    <button id="themeBtn" class="btn theme-toggle">🌞</button>
+  </div>
+</header>
+
+<main>
+  <div class="banner" id="banner">
+    <div>
+      <div class="verse" id="welcomeText">Welcome to RAD. EBENEZER — God’s Light in Radiography</div>
+      <div class="small" id="verseText">“For nothing will be impossible with God.” — Luke 1:37</div>
+    </div>
+    <div class="small">Royal blue · White · Gold</div>
+  </div>
+
+  <div class="controls-row">
+    <div class="filter">
+      <label class="small" for="categoryFilter">Category:</label>
+      <select id="categoryFilter" class="select">
+        <option value="">All</option>
+      </select>
+    </div>
+    <div style="flex:1"></div>
+    <div>
+      <button id="exportBtn" class="btn small ghost">Export posts.json</button>
+    </div>
+  </div>
+
+  <div id="postsList"></div>
+
+  <div class="footer">© <span id="year"></span> RAD. EBENEZER OKWUANASOR — All rights reserved.</div>
+</main>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<!-- Top button -->
+<button id="topBtn">↑</button>
+
+<!-- Donate Modal -->
+<div id="donateModal" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <button class="close" id="donateClose">❌</button>
+    <h3>Support the Vision</h3>
+    <p>
+      <strong>Account 1</strong><br>
+      Bank: Palmpay<br>
+      Account Name: Okwuanasor Francesca Nwamaka<br>
+      Account Number: 8116249601
+    </p>
+    <p>
+      <strong>Account 2</strong><br>
+      Bank: PAGA<br>
+      Account Name: Okwuanasor Francesca Nwamaka<br>
+      Account Number: 0590180601
+    </p>
+    <p>Phone: 08121817693 / 08116249601<br>Email: ebenezerokwuanasor@gmail.com</p>
+    <p style="font-style:italic">If you have made donations, please contact me via email. Thanks for your support.</p>
+  </div>
+</div>
+
+<!-- About Modal -->
+<div id="aboutModal" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <button class="close" id="aboutClose">❌</button>
+    <div style="display:flex;gap:12px;align-items:center">
+      <img src="" id="aboutPhoto" alt="Profile" style="width:96px;height:96px;border-radius:12px;object-fit:cover;background:#eee">
+      <div>
+        <h3>RAD. EBENEZER OKWUANASOR</h3>
+        <p class="small">Radiographer · Educator · Servant of God. Sharing radiography insights, case images, and spiritual encouragement.</p>
+        <p class="small"><strong>Email:</strong> ebenezerokwuanasor@gmail.com<br><strong>Phone:</strong> 08121817693</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin Modal -->
+<div id="adminModal" class="modal-backdrop" role="dialog" aria-modal="true">
+  <div class="modal">
+    <button class="close" id="adminClose">❌</button>
+    <h3>Admin — Create Post</h3>
+    <div class="small">Enter admin password to unlock posting. Drafts auto-save locally.</div>
+
+    <div style="margin-top:.6rem">
+      <label class="small">Admin password</label><br>
+      <input id="adminPass" class="input" placeholder="Enter admin password" />
+    </div>
+
+    <div style="margin-top:.6rem">
+      <label class="small">Post title</label><br>
+      <input id="postTitle" class="input" placeholder="Title" />
+    </div>
+
+    <div style="margin-top:.6rem">
+      <label class="small">Category</label><br>
+      <input id="postCategory" class="input" placeholder="e.g. Radiography, Inspiration, Education" />
+    </div>
+
+    <div style="margin-top:.6rem">
+      <label class="small">Content (HTML allowed)</label><br>
+      <textarea id="postContent" class="input" rows="6" placeholder="Write content..."></textarea>
+    </div>
+
+    <div style="margin-top:.6rem">
+      <label class="small">Attach image or PDF (optional)</label><br>
+      <input type="file" id="postFile" accept="image/*,.pdf" />
+      <div id="fileStatus" class="small"></div>
+    </div>
+
+    <div style="margin-top:.8rem;display:flex;gap:.6rem;justify-content:flex-end">
+      <button id="publishBtn" class="btn">Publish (Download posts.json)</button>
+      <button id="publishLocalBtn" class="btn small ghost">Publish Locally</button>
+    </div>
+
+    <div id="adminMsg" class="small" style="margin-top:.6rem;color:green"></div>
+  </div>
+</div>
+
+<script>
+/* ================== Configuration ================== */
+/* Admin password (no spaces) */
+const ADMIN_PASS = "@RADEBENEZER3008123400";
+const READER_KEY_PREFIX = "rad_site_v1";
+/* =================================================== */
+
+document.getElementById('year').textContent = new Date().getFullYear();
+
+function $(id){return document.getElementById(id)}
+function showToast(msg, time=3000){ const t=$('toast'); t.textContent=msg; t.style.display='block'; setTimeout(()=>t.style.display='none', time); }
+function downloadFile(filename, content, mime='application/json'){ const blob = new Blob([content], {type:mime}); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=filename; document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(a.href); }
+function escapeHtml(s){ if(!s) return ''; return String(s).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'","&#39;"); }
+function slug(v){ return v.replace(/\s+/g,'_').replace(/[^\w\-\.]/g,'').toLowerCase(); }
+
+const visitorKey = READER_KEY_PREFIX + '_visitors';
+let visitors = parseInt(localStorage.getItem(visitorKey) || '0', 10) || 0;
+visitors += 1;
+localStorage.setItem(visitorKey, String(visitors));
+$('visitorCounter').textContent = `👁 ${visitors}`;
+
+const verses = [
+  "For nothing will be impossible with God. — Luke 1:37",
+  "I can do all things through Christ who strengthens me. — Philippians 4:13",
+  "The Lord is my shepherd; I shall not want. — Psalm 23:1",
+  "In all your ways acknowledge him, and he will make straight your paths. — Proverbs 3:6"
+];
+let verseIndex = Math.floor(Math.random()*verses.length);
+$('verseText').textContent = verses[verseIndex];
+setInterval(()=>{ verseIndex = (verseIndex+1) % verses.length; $('verseText').textContent = verses[verseIndex]; }, 15000);
+
+let posts = [];
+async function loadRemotePosts(){
+  try{ const r = await fetch('posts.json?_=' + Date.now()); if(!r.ok) throw 'no remote posts'; const data = await r.json(); return Array.isArray(data) ? data : []; }catch(e){ return []; }
+}
+async function loadAll(){ const remote = await loadRemotePosts(); const localSaved = JSON.parse(localStorage.getItem(READER_KEY_PREFIX + '_local_posts') || '[]'); const normRemote = remote.map(normalizePost); posts = localSaved.concat(normRemote); renderAll(); populateCategoryFilter(); }
+function normalizePost(p){ return { id: p.id || ('p_' + Math.random().toString(36).slice(2,9)), title: p.title || 'Untitled', content: p.content || '', category: p.category || '', date: p.date || (new Date().toISOString().split('T')[0]), fileDataUrl: p.fileDataUrl || null, fileName: p.fileName || null, fileUrl: p.fileUrl || p.fileUrl || null, likes: p.likes || 0 }; }
+loadAll();
+function renderAll(filterCategory=''){ $('postsList').innerHTML = ''; posts.forEach((p, idx)=>{ if(filterCategory && p.category && p.category.toLowerCase() !== filterCategory.toLowerCase()) return; const el = document.createElement('div'); el.className='card'; const imageHTML = p.fileUrl ? `<img src="${p.fileUrl}" class="file-preview">` : (p.fileDataUrl && p.fileDataUrl.startsWith('data:image') ? `<img src="${p.fileDataUrl}" class="file-preview">` : ''); const catHTML = p.category ? `<span class="category-pill">${escapeHtml(p.category)}</span>` : ''; el.innerHTML = ` <div class="post-meta"> <div><strong>${escapeHtml(p.title)}</strong><div class="small">${escapeHtml(p.date)} ${catHTML}</div></div> <div class="post-actions"> <div class="small" id="likes-display-${idx}">${p.likes||0} ❤️</div> </div> </div> <div style="margin-top:.6rem">${p.content || ''}${imageHTML}</div> <div style="margin-top:.6rem;display:flex;gap:.6rem;flex-wrap:wrap;align-items:center"> <button class="btn small" onclick="likePost(${idx})">Like</button> <button class="btn small" onclick="downloadPost(${idx})">⬇️ Download</button> <div class="share-row"> <button class="btn small ghost" onclick="shareWhatsApp(${idx})"><i class="fa-brands fa-whatsapp"></i></button> <button class="btn small ghost" onclick="shareFacebook(${idx})"><i class="fa-brands fa-facebook"></i></button> <button class="btn small ghost" onclick="shareTelegram(${idx})"><i class="fa-brands fa-telegram"></i></button> </div> </div> `; $('postsList').appendChild(el); }); populateCategoryFilter(); }
+function populateCategoryFilter(){ const set = new Set(); posts.forEach(p => { if(p.category) set.add(p.category.trim()); }); const sel = $('categoryFilter'); sel.innerHTML = `<option value="">All</option>`; set.forEach(c => { const opt = document.createElement('option'); opt.value=c; opt.textContent=c; sel.appendChild(opt); }); }
+$('categoryFilter').addEventListener('change', ()=> { const v = $('categoryFilter').value; renderAll(v); });
+function likePost(i){ posts[i].likes = (posts[i].likes||0) + 1; const likesStore = JSON.parse(localStorage.getItem(READER_KEY_PREFIX + '_likes') || '{}'); likesStore[posts[i].id] = posts[i].likes; localStorage.setItem(READER_KEY_PREFIX + '_likes', JSON.stringify(likesStore)); document.getElementById('likes-display-'+i).textContent = posts[i].likes + ' ❤️'; showToast('Thanks for liking!'); }
+async function downloadPost(i){ const p = posts[i]; if(!p) return; if(p.fileUrl){ const a = document.createElement('a'); a.href = p.fileUrl; a.download = p.fileName || p.fileUrl.split('/').pop() || `post_${slug(p.title)}.dat`; document.body.appendChild(a); a.click(); a.remove(); return; } if(p.fileDataUrl){ const a = document.createElement('a'); a.href = p.fileDataUrl; a.download = p.fileName || `${slug(p.title)}.bin`; document.body.appendChild(a); a.click(); a.remove(); return; } try { const { jsPDF } = window.jspdf; const doc = new jsPDF({unit:'pt', format:'a4'}); let y = 40; doc.setFontSize(16); doc.text(p.title || 'Post', 40, y); y += 26; doc.setFontSize(10); doc.text('Date: ' + (p.date || ''), 40, y); y += 18; doc.setFontSize(12); const contentText = stripHtml(p.content || ''); const lines = doc.splitTextToSize(contentText, 520); doc.text(lines, 40, y); y += lines.length * 14 + 10; if(p.fileDataUrl && p.fileDataUrl.startsWith('data:image')){ try { doc.addImage(p.fileDataUrl, 'JPEG', 40, y, 200, 200); } catch(e){} } const fileName = `${slug(p.title) || 'post'}.pdf`; doc.save(fileName); } catch(err){ alert('Failed to create PDF: ' + (err.message || err)); } }
+function stripHtml(html){ const tmp = document.createElement('div'); tmp.innerHTML = html; return tmp.textContent || tmp.innerText || ''; }
+function shareWhatsApp(i){ const p = posts[i]; const text = `${p.title}\n${stripHtml(p.content)}\n\n${location.href}`; window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank'); }
+function shareFacebook(i){ const p = posts[i]; const url = location.href; window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(p.title)}`, '_blank'); }
+function shareTelegram(i){ const p = posts[i]; const text = `${p.title}\n${stripHtml(p.content)}\n\n${location.href}`; window.open(`https://t.me/share/url?url=${encodeURIComponent(location.href)}&text=${encodeURIComponent(text)}`, '_blank'); }
+const draftKey = READER_KEY_PREFIX + '_admin_draft';
+function saveDraft(){ const draft = { title: $('postTitle').value, category: $('postCategory').value, content: $('postContent').value }; localStorage.setItem(draftKey, JSON.stringify(draft)); }
+function loadDraft(){ const d = JSON.parse(localStorage.getItem(draftKey) || '{}'); if(d.title) $('postTitle').value = d.title; if(d.category) $('postCategory').value = d.category; if(d.content) $('postContent').value = d.content; }
+['postTitle','postCategory','postContent'].forEach(id => { $(id).addEventListener('input', saveDraft); });
+loadDraft();
+$('adminBtn').addEventListener('click', ()=> { $('adminModal').style.display = 'flex'; }); $('adminClose').addEventListener('click', ()=> { $('adminModal').style.display = 'none'; $('adminMsg').textContent=''; });
+$('donateBtn').addEventListener('click', ()=> { $('donateModal').style.display='flex'; }); $('donateClose').addEventListener('click', ()=> { $('donateModal').style.display='none'; });
+$('aboutBtn').addEventListener('click', ()=> { $('aboutModal').style.display='flex'; }); $('aboutClose').addEventListener('click', ()=> { $('aboutModal').style.display='none'; });
+let pendingFileData = null; let pendingFileName = null; $('postFile').addEventListener('change', function(e){ const f = e.target.files[0]; if(!f){ pendingFileData=null; pendingFileName=null; $('fileStatus').textContent=''; return; } if(f.size > 6 * 1024 * 1024){ alert('File too large (max 6MB)'); return; } const reader = new FileReader(); reader.onload = function(ev){ pendingFileData = ev.target.result; pendingFileName = f.name; $('fileStatus').textContent = `Attached: ${f.name} (${Math.round(f.size/1024)} KB)`; }; reader.readAsDataURL(f); });
+$('publishBtn').addEventListener('click', async ()=>{ const pass = $('adminPass').value || ''; if(pass !== ADMIN_PASS) return alert('Incorrect admin password'); const title = $('postTitle').value.trim(); const content = $('postContent').value.trim(); const category = $('postCategory').value.trim(); if(!title || !content) return alert('Title and content required'); const newPost = { id: 'p_'+Date.now(), title: title, content: content, category: category, date: new Date().toISOString().split('T')[0], likes: 0 }; if(pendingFileData){ newPost.fileDataUrl = pendingFileData; newPost.fileName = pendingFileName; } posts.unshift(newPost); const localSaved = JSON.parse(localStorage.getItem(READER_KEY_PREFIX + '_local_posts') || '[]'); localSaved.unshift(newPost); localStorage.setItem(READER_KEY_PREFIX + '_local_posts', JSON.stringify(localSaved)); renderAll(); showToast('Post created — generating posts.json for download...'); const remoteAttempt = await loadRemotePosts(); const combined = localSaved.concat(remoteAttempt).map(p => { return { title: p.title, content: p.content, category: p.category || '', date: p.date, likes: p.likes || 0, fileDataUrl: p.fileDataUrl || undefined, fileName: p.fileName || undefined, fileUrl: p.fileUrl || undefined }; }); downloadFile('posts.json', JSON.stringify(combined, null, 2), 'application/json'); $('postTitle').value=''; $('postCategory').value=''; $('postContent').value=''; $('postFile').value=''; $('fileStatus').textContent=''; pendingFileData=null; pendingFileName=null; localStorage.removeItem(draftKey); $('adminMsg').textContent = 'Post created and posts.json downloaded. Re-upload posts.json to your GitHub repo to make the change permanent.'; });
+$('publishLocalBtn').addEventListener('click', ()=>{ const pass = $('adminPass').value || ''; if(pass !== ADMIN_PASS) return alert('Incorrect admin password'); const title = $('postTitle').value.trim(); const content = $('postContent').value.trim(); const category = $('postCategory').value.trim(); if(!title || !content) return alert('Title and content required'); const newPost = { id: 'p_'+Date.now(), title, content, category, date: new Date().toISOString().split('T')[0], likes: 0 }; if(pendingFileData){ newPost.fileDataUrl = pendingFileData; newPost.fileName = pendingFileName; } const localSaved = JSON.parse(localStorage.getItem(READER_KEY_PREFIX + '_local_posts') || '[]'); localSaved.unshift(newPost); localStorage.setItem(READER_KEY_PREFIX + '_local_posts', JSON.stringify(localSaved)); posts.unshift(newPost); renderAll(); showToast('Post published locally. Export posts.json when ready to update the repo.'); $('postTitle').value=''; $('postCategory').value=''; $('postContent').value=''; $('postFile').value=''; $('fileStatus').textContent=''; pendingFileData=null; pendingFileName=null; localStorage.removeItem(draftKey); });
+$('exportBtn').addEventListener('click', async ()=>{ const localSaved = JSON.parse(localStorage.getItem(READER_KEY_PREFIX + '_local_posts') || '[]'); const remote = await loadRemotePosts(); const combined = localSaved.concat(remote).map(p => ({ title: p.title, content: p.content, category: p.category || '', date: p.date, likes: p.likes || 0, fileDataUrl: p.fileDataUrl || undefined, fileName: p.fileName || undefined, fileUrl: p.fileUrl || undefined })); downloadFile('posts.json', JSON.stringify(combined, null, 2)); showToast('posts.json downloaded. Upload it to your GitHub repo to update the live site.'); });
+window.addEventListener('scroll', ()=> { $('topBtn').style.display = window.scrollY > 300 ? 'block' : 'none'; });
+$('topBtn').addEventListener('click', ()=> window.scrollTo({top:0,behavior:'smooth'}));
+$('themeBtn').addEventListener('click', ()=> { document.body.classList.toggle('dark'); $('themeBtn').textContent = document.body.classList.contains('dark') ? '🌙' : '🌞'; localStorage.setItem(READER_KEY_PREFIX + '_theme', document.body.classList.contains('dark') ? 'dark' : 'light'); });
+if(localStorage.getItem(READER_KEY_PREFIX + '_theme') === 'dark'){ document.body.classList.add('dark'); $('themeBtn').textContent = '🌙'; }
+setTimeout(()=>{ renderAll(); populateCategoryFilter(); }, 400);
+</script>
+</body>
+</html>
