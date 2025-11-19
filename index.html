@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>RAD. EBENEZER.COM</title>
+<style>
+:root{--royal:#0b64b3;--gold:#c49a2a;--ash:#e6e7e8;--bg:#f6f7f9}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,Arial;background:linear-gradient(135deg,#fbfcfd,#f1f5f9);color:#071027;min-height:100vh}
+a{color:inherit;text-decoration:none}
+
+/* Header */
+header{position:fixed;inset:0 0 auto 0;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:16px;padding:12px 18px;background:rgba(255,255,255,.98);backdrop-filter:blur(6px);z-index:120;border-bottom:1px solid rgba(11,100,179,.06)}
+.left-col{display:flex;gap:12px;align-items:center}
+#adminBtn{background:var(--royal);color:#fff;padding:.55rem .85rem;border-radius:10px;border:0;font-weight:700;cursor:pointer}
+.brand{display:flex;flex-direction:column}
+.brand .title{font-weight:800;color:var(--royal);font-size:1rem;line-height:1}
+.subtitle{font-size:.78rem;color:#6b7280;max-width:520px;white-space:nowrap;overflow:hidden}
+.subtitle span{display:inline-block;padding-left:100%;animation:scroll 26s linear infinite}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-200%)}}
+
+/* center */
+.center{display:flex;align-items:center;gap:18px;padding:0 10px}
+.search{flex:1;max-width:520px}
+.search input{width:100%;padding:.5rem .7rem;border-radius:10px;border:1px solid #e6e9ef}
+
+/* right */
+.right{display:flex;align-items:center;gap:10px}
+#donateBtn{background:var(--gold);color:#072033;padding:.5rem .8rem;border-radius:10px;border:0;font-weight:700;cursor:pointer}
+#themeBtn{background:#fff;border:1px solid rgba(11,100,179,.12);padding:.45rem .6rem;border-radius:8px;cursor:pointer}
+
+/* main / posts */
+main{padding:92px 16px 40px;max-width:980px;margin:0 auto;display:grid;gap:18px}
+.banner{background:linear-gradient(90deg, rgba(11,100,179,.06), rgba(196,154,42,.04));padding:14px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;gap:12px;box-shadow:0 8px 30px rgba(2,6,23,.04)}
+.card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 8px 30px rgba(2,6,23,.06)}
+.card h3{margin:0 0 .25rem;color:var(--royal)}
+.meta{color:#6b7280;font-size:.9rem;margin-bottom:6px}
+.content{margin-top:8px;line-height:1.45}
+.card img,.card video{max-width:100%;border-radius:8px;margin-top:8px}
+.actions{margin-top:12px;display:flex;gap:8px;flex-wrap:wrap}
+
+.btn{padding:.45rem .6rem;border-radius:8px;border:0;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid #e6e9ef}
+.btn.primary{background:var(--royal);color:#fff}
+.btn.download{background:var(--gold);color:#072033}
+
+/* overlay panels */
+.overlay{position:fixed;inset:0;display:none;background:rgba(0,0,0,.55);align-items:center;justify-content:center;z-index:240}
+.panel{background:#fff;border-radius:12px;padding:18px;max-width:640px;width:94%;position:relative;box-shadow:0 24px 50px rgba(2,6,23,.25)}
+.closeX{position:absolute;right:12px;top:12px;cursor:pointer;background:#ff3b3b;color:#fff;border-radius:8px;padding:6px 8px;border:0}
+.small{font-size:.9rem;color:#6b7280}
+
+/* feedback */
+.feedback{display:flex;align-items:center;gap:10px;justify-content:center;font-size:1.05rem}
+.emoji{font-size:2rem}
+.shake{animation:shake .7s}
+@keyframes shake{10%{transform:translateX(-6px)}30%{transform:translateX(6px)}50%{transform:translateX(-4px)}70%{transform:translateX(4px)}100%{transform:translateX(0)}}
+
+/* canvas */
+canvas#bg{position:fixed;inset:0;z-index:-1;width:100%;height:100%}
+
+/* responsive */
+@media (max-width:720px){
+  header{grid-template-columns:auto 1fr auto;gap:8px;padding:10px}
+  .subtitle{display:none}
+  .panel{padding:12px}
+  .banner{flex-direction:column;align-items:flex-start;gap:8px}
+}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<header id="header">
+  <div class="left-col">
+    <button id="adminBtn" aria-label="Admin">Admin</button>
+    <div class="brand">
+      <div class="title">RAD. EBENEZER.COM</div>
+      <div class="subtitle"><span id="scrollText">RAD. EBENEZER OKWUANASOR Public Webpage • Phone 08121817693 & 08116249601 • Email ebenezerokwuanasor@gmail.com</span></div>
+    </div>
+  </div>
+
+  <div class="center">
+    <div class="search"><input id="searchInput" type="search" placeholder="Search posts by title..."></div>
+  </div>
+
+  <div class="right">
+    <button id="themeBtn" class="btn ghost" title="Toggle theme">🌞</button>
+    <button id="donateBtn" class="btn" title="Donate">💖 Donate</button>
+  </div>
+</header>
+
+<main>
+  <div class="banner">
+    <div>
+      <div style="font-weight:800;color:var(--royal)">Welcome to RAD. EBENEZER</div>
+      <div class="small">Radiography | Education | Faith</div>
+    </div>
+    <div class="small">Royal Blue · Ash · Yellow accents</div>
+  </div>
+
+  <div id="postsList">
+    <!-- posts rendered here -->
+  </div>
+
+  <div style="text-align:center;color:#6b7280;margin-top:8px">© 2025 RAD. EBENEZER OKWUANASOR</div>
+</main>
+
+<!-- Donate overlay -->
+<div id="donateOverlay" class="overlay" aria-hidden="true">
+  <div class="panel" role="dialog" aria-modal="true">
+    <button class="closeX" id="donateClose">❌</button>
+    <h3>Support the Vision</h3>
+    <p><strong>Palmpay</strong><br>Acc no: 8116249601<br>Acc name: Okwuanasor Francesca Nwamaka</p>
+    <p><strong>PAGA</strong><br>Acc no: 0590180601<br>Acc name: Okwuanasor Francesca Nwamaka</p>
+    <p>Email: ebenezerokwuanasor@gmail.com<br>Phone: 08121817693 / 08116249601</p>
+    <p class="small"><em>If you have made donations, please contact me via email. Thanks for your support.</em></p>
+  </div>
+</div>
+
+<!-- Admin confirm overlay (Are you an admin) -->
+<div id="adminConfirmOverlay" class="overlay" aria-hidden="true">
+  <div class="panel" role="dialog" aria-modal="true">
+    <button class="closeX" id="adminConfirmClose">❌</button>
+    <h3>Are you an admin?</h3>
+    <div style="display:flex;gap:12px;justify-content:center;margin-top:12px">
+      <button id="adminYes" class="btn primary">Yes</button>
+      <button id="adminNo" class="btn ghost">No</button>
+    </div>
+  </div>
+</div>
+
+<!-- Admin pass overlay -->
+<div id="adminPassOverlay" class="overlay" aria-hidden="true">
+  <div class="panel" role="dialog" aria-modal="true">
+    <button class="closeX" id="adminPassClose">❌</button>
+    <h3>Input Admin passkey 🔑</h3>
+    <div class="small" style="margin-bottom:8px">You have <span id="remainingTrials">5</span> trials remaining</div>
+    <input id="adminPassInput" type="password" placeholder="Enter passkey" style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #e6e9ef">
+    <div style="margin-top:12px;display:flex;gap:10px;justify-content:center">
+      <button id="adminPassSubmit" class="btn primary">Submit</button>
+      <button id="adminPassCancel" class="btn ghost">Cancel</button>
+    </div>
+    <div id="passFeedback" style="margin-top:12px;text-align:center"></div>
+  </div>
+</div>
+
+<!-- Admin panel overlay -->
+<div id="adminPanelOverlay" class="overlay" aria-hidden="true">
+  <div class="panel" role="dialog" aria-modal="true">
+    <button class="closeX" id="adminPanelClose">❌</button>
+
+    <div id="adminSuccess" style="display:none;text-align:center;margin-bottom:8px">
+      <div class="feedback"><div class="emoji">✅</div><div class="small">Admin verified — you may post now</div></div>
+    </div>
+
+    <h3 id="adminPanelTitle">Create Post</h3>
+
+    <div class="small" style="margin-bottom:8px">Title</div>
+    <input id="postTitle" type="text" placeholder="Post title" style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #e6e9ef">
+
+    <div class="small" style="margin-top:10px">Body</div>
+    <textarea id="postBody" rows="5" placeholder="Write post content here..." style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #e6e9ef"></textarea>
+
+    <div class="small" style="margin-top:10px">Media URL (paste your GitHub raw file URL here) — recommended for permanence</div>
+    <input id="postFileURL" type="text" placeholder="https://raw.githubusercontent.com/yourname/repo/main/media/file.jpg" style="width:100%;padding:.6rem;border-radius:8px;border:1px solid #e6e9ef">
+
+    <div class="small" style="margin-top:10px">Or choose a local file for preview only (optional)</div>
+    <input id="postLocalFile" type="file" accept="image/*,video/*,.pdf" class="file-input">
+
+    <div style="margin-top:12px;display:flex;gap:10px;justify-content:center">
+      <button id="postSubmitBtn" class="btn primary">Post</button>
+      <button id="postCancelBtn" class="btn ghost">Cancel</button>
+    </div>
+    <div id="postFeedback" style="margin-top:10px;text-align:center"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- Config ---------- */
+const ADMIN_PASS = "@RADEBENEZER3008123400";
+const MAX_TRIALS = 5;
+const LOCK_DURATION_MS = 24*60*60*1000; // 24 hours
+const LOCK_KEY = 'rad_admin_lock_until_v2';
+const TRIALS_KEY = 'rad_admin_trials_v2';
+
+/* ---------- Helpers ---------- */
+const el = id => document.getElementById(id);
+const now = () => Date.now();
+function showOverlay(id){ const o=el(id); o.style.display='flex'; o.setAttribute('aria-hidden','false'); }
+function hideOverlay(id){ const o=el(id); o.style.display='none'; o.setAttribute('aria-hidden','true'); }
+
+/* ---------- Elements ---------- */
+const adminBtn = el('adminBtn');
+const donateBtn = el('donateBtn');
+const donateOverlay = el('donateOverlay');
+const donateClose = el('donateClose');
+
+const adminConfirmOverlay = el('adminConfirmOverlay');
+const adminConfirmClose = el('adminConfirmClose');
+const adminYes = el('adminYes');
+const adminNo = el('adminNo');
+
+const adminPassOverlay = el('adminPassOverlay');
+const adminPassInput = el('adminPassInput');
+const adminPassSubmit = el('adminPassSubmit');
+const adminPassCancel = el('adminPassCancel');
+const remainingTrialsSpan = el('remainingTrials');
+const passFeedback = el('passFeedback');
+
+const adminPanelOverlay = el('adminPanelOverlay');
+const adminPanelClose = el('adminPanelClose');
+const adminSuccess = el('adminSuccess');
+const postTitle = el('postTitle');
+const postBody = el('postBody');
+const postFileURL = el('postFileURL');
+const postLocalFile = el('postLocalFile');
+const postSubmitBtn = el('postSubmitBtn');
+const postCancelBtn = el('postCancelBtn');
+const postFeedback = el('postFeedback');
+
+const postsList = el('postsList');
+const searchInput = el('searchInput');
+
+/* ---------- Donate ---------- */
+donateBtn.addEventListener('click', ()=> showOverlay('donateOverlay'));
+donateClose.addEventListener('click', ()=> hideOverlay('donateOverlay'));
+
+/* ---------- Lock & Trials (per browser) ---------- */
+function getLockUntil(){ return parseInt(localStorage.getItem(LOCK_KEY) || '0',10); }
+function setLockUntil(ts){ localStorage.setItem(LOCK_KEY, String(ts)); }
+function getTrials(){ return parseInt(localStorage.getItem(TRIALS_KEY) || '0',10); }
+function setTrials(n){ localStorage.setItem(TRIALS_KEY, String(n)); }
+function isLocked(){ const until=getLockUntil(); return until && now()<until; }
+function lockRemainingMs(){ const until=getLockUntil(); return Math.max(0, until-now()); }
+
+function showLockInfo(){ const ms = lockRemainingMs(); if(ms<=0) return; const sec = Math.floor(ms/1000)%60; const min = Math.floor(ms/60000)%60; const hr = Math.floor(ms/3600000); alert(`Admin locked in this browser for ${hr}h ${min}m ${sec}s due to repeated failed attempts.`); }
+
+/* ---------- Admin Flow ---------- */
+adminBtn.addEventListener('click', ()=> {
+  if(isLocked()){ showLockInfo(); return; }
+  showOverlay('adminConfirmOverlay');
+});
+
+el('adminConfirmClose').addEventListener('click', ()=> hideOverlay('adminConfirmOverlay'));
+adminNo.addEventListener('click', ()=> hideOverlay('adminConfirmOverlay'));
+adminYes.addEventListener('click', ()=> { hideOverlay('adminConfirmOverlay'); updateTrialsUI(); showOverlay('adminPassOverlay'); });
+
+adminPassCancel.addEventListener('click', ()=> { hideOverlay('adminPassOverlay'); });
+
+adminPassSubmit.addEventListener('click', ()=> {
+  const val = adminPassInput.value || '';
+  if(isLocked()){ hideOverlay('adminPassOverlay'); showLockInfo(); return; }
+  if(val === ADMIN_PASS){
+    // success
+    setTrials(0);
+    adminPassInput.value='';
+    passFeedback.innerHTML = '<div class="feedback"><div class="emoji">✅</div><div class="small">Passkey accepted — opening admin panel</div></div>';
+    setTimeout(()=>{ hideOverlay('adminPassOverlay'); openAdminPanel(); passFeedback.innerHTML=''; }, 700);
+    return;
+  } else {
+    // failed
+    const t = getTrials() + 1;
+    setTrials(t);
+    const remaining = Math.max(0, MAX_TRIALS - t);
+    remainingTrialsSpan.textContent = remaining;
+    passFeedback.innerHTML = `<div class="feedback"><div class="emoji shake">😡</div><div class="small">Incorrect passkey. ${remaining} trials remaining.</div></div>`;
+    adminPassInput.value='';
+    if(t >= MAX_TRIALS){
+      setLockUntil(now() + LOCK_DURATION_MS);
+      hideOverlay('adminPassOverlay');
+      alert('You have been locked out from admin for 24 hours (this browser).');
+    }
+  }
+});
+
+function updateTrialsUI(){ const t=getTrials(); remainingTrialsSpan.textContent = Math.max(0, MAX_TRIALS - t); }
+
+/* ---------- Open Admin Panel ---------- */
+function openAdminPanel(){
+  showOverlay('adminPanelOverlay');
+  adminSuccess.style.display='block';
+  setTimeout(()=>{ adminSuccess.style.display='none'; }, 1100);
+  postTitle.value=''; postBody.value=''; postFileURL.value=''; postLocalFile.value=''; postFeedback.textContent='';
+}
+
+/* close / cancel admin */
+adminPanelClose.addEventListener('click', ()=> hideOverlay('adminPanelOverlay'));
+postCancelBtn.addEventListener('click', ()=> hideOverlay('adminPanelOverlay'));
+
+/* ---------- Posts management ---------- */
+let posts = []; // will be loaded from posts.json if present
+
+async function loadPosts(){
+  try{
+    const r = await fetch('posts.json?_=' + Date.now());
+    if(!r.ok) return;
+    const data = await r.json();
+    if(Array.isArray(data)) posts = data.slice();
+  }catch(e){ /* ignore */ }
+  renderPosts();
+}
+
+function renderPosts(){
+  postsList.innerHTML = '';
+  if(!posts || posts.length===0){
+    const c = document.createElement('div'); c.className='card'; c.innerHTML = '<h3>No posts yet</h3><p class="small">Use Admin to create a post.</p>'; postsList.appendChild(c); return;
+  }
+  posts.slice().reverse().forEach(p=>{
+    const card = document.createElement('div'); card.className='card';
+    const d = new Date(p.date || p.createdAt || Date.now());
+    const meta = `<div class="meta">${d.toLocaleDateString()}</div>`;
+    let fileHtml = '';
+    if(p.fileDataUrl){
+      if(p.fileDataUrl.startsWith('data:image')) fileHtml = `<img src="${p.fileDataUrl}" alt="${p.fileName||''}">`;
+      else if(p.fileDataUrl.startsWith('data:video')) fileHtml = `<video src="${p.fileDataUrl}" controls></video>`;
+      else fileHtml = `<a href="${p.fileDataUrl}" download="${p.fileName||'file'}" class="btn download">Download</a>`;
+    } else if(p.fileURL){
+      const ext = (p.fileName||'').split('.').pop().toLowerCase();
+      if(['png','jpg','jpeg','gif','webp'].includes(ext)) fileHtml = `<img src="${p.fileURL}" alt="${p.fileName||''}">`;
+      else if(['mp4','webm','ogg'].includes(ext)) fileHtml = `<video src="${p.fileURL}" controls></video>`;
+      else if(ext==='pdf') fileHtml = `<a href="${p.fileURL}" download class="btn download">Download PDF</a>`;
+      else fileHtml = `<a href="${p.fileURL}" target="_blank" class="btn ghost">Open File</a>`;
+    }
+    let downloadBtn = '';
+    if(p.fileURL) downloadBtn = `<a href="${p.fileURL}" download><button class="btn download">⬇️ Download</button></a>`;
+    else if(p.fileDataUrl) downloadBtn = `<a href="${p.fileDataUrl}" download="${p.fileName||'file'}"><button class="btn download">⬇️ Download</button></a>`;
+    card.innerHTML = `<h3>${escapeHtml(p.title)}</h3>${meta}<div class="content">${escapeHtml(p.content)}</div>${fileHtml}<div class="actions">${downloadBtn}</div>`;
+    postsList.appendChild(card);
+  });
+}
+
+/* small escape */
+function escapeHtml(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ---------- Post submission (confirmation step) ---------- */
+let confirmFailures = 0;
+postSubmitBtn.addEventListener('click', async ()=>{
+  const conf = prompt('Re-enter admin passkey to post:');
+  if(conf === null) return;
+  if(conf !== ADMIN_PASS){
+    confirmFailures++;
+    postFeedback.innerHTML = `<div class="feedback"><div class="emoji shake">😡</div><div class="small">Incorrect confirmation (${confirmFailures}/2).</div></div>`;
+    if(confirmFailures >=2){
+      postFeedback.innerHTML = `<div class="feedback"><div class="emoji">🚫</div><div class="small">Admin panel closed due to repeated failed confirmations.</div></div>`;
+      setTimeout(()=>{ hideOverlay('adminPanelOverlay'); postFeedback.innerHTML=''; confirmFailures=0; }, 900);
+    }
+    return;
+  }
+  confirmFailures = 0;
+  const title = (postTitle.value || '').trim();
+  const content = (postBody.value || '').trim();
+  const fileURL = (postFileURL.value || '').trim();
+  const localFile = postLocalFile.files[0];
+  if(!title || !content){ postFeedback.textContent = 'Title and content are required'; return; }
+
+  let fileDataUrl = '';
+  let fileName = fileURL ? fileURL.split('/').pop() : (localFile ? localFile.name : '');
+  if(localFile && !fileURL){
+    fileDataUrl = await new Promise((res)=>{ const r=new FileReader(); r.onload = ()=> res(r.result); r.readAsDataURL(localFile); });
+  }
+
+  const newPost = {
+    id: 'p_' + Date.now().toString(36),
+    title: title,
+    date: new Date().toISOString(),
+    content: content,
+    fileName: fileName || '',
+    fileDataUrl: fileDataUrl || '',
+    fileURL: fileURL || ''
+  };
+
+  posts.push(newPost);
+  renderPosts();
+
+  const blob = new Blob([JSON.stringify(posts, null, 2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'posts.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  postFeedback.innerHTML = `<div class="feedback"><div class="emoji">🎉</div><div class="small">Post saved locally and posts.json downloaded. Upload posts.json + your file (if any) to GitHub to persist.</div></div>`;
+  setTimeout(()=>{ postFeedback.innerHTML=''; }, 2500);
+  postTitle.value=''; postBody.value=''; postFileURL.value=''; postLocalFile.value='';
+});
+
+/* ---------- Load existing posts and init ---------- */
+async function loadPosts(){
+  try{
+    const r = await fetch('posts.json?_=' + Date.now());
+    if(!r.ok) return;
+    const data = await r.json();
+    if(Array.isArray(data)) posts = data.slice();
+  }catch(e){ /* ignore */ }
+  renderPosts();
+}
+(async function init(){ await loadPosts(); })();
+
+/* ---------- Search ---------- */
+searchInput.addEventListener('input', (e)=>{
+  const q = (e.target.value || '').toLowerCase();
+  document.querySelectorAll('.card').forEach(card=>{
+    const title = (card.querySelector('h3')?.textContent || '').toLowerCase();
+    card.style.display = title.includes(q) ? 'block' : 'none';
+  });
+});
+
+/* ---------- Admin lock info handler ---------- */
+adminBtn.addEventListener('click', ()=>{
+  if(isLocked()){
+    const ms = lockRemainingMs();
+    const sec = Math.floor(ms/1000)%60;
+    const min = Math.floor(ms/60000)%60;
+    const hr = Math.floor(ms/3600000);
+    alert(`Admin locked in this browser for ${hr}h ${min}m ${sec}s due to repeated failed attempts.`);
+  }
+});
+
+/* ---------- Background: radiography-inspired ---------- */
+const canvas = document.getElementById('bg');
+const ctx = canvas.getContext('2d');
+let W = innerWidth, H = innerHeight, nodes = [];
+function resizeCanvas(){ W = innerWidth; H = innerHeight; canvas.width = W; canvas.height = H; initNodes(); }
+window.addEventListener('resize', resizeCanvas);
+function initNodes(){ nodes = []; const count = Math.max(18, Math.floor(W/80)); for(let i=0;i<count;i++){ nodes.push({ x:Math.random()*W, y:Math.random()*H, r:6+Math.random()*18, dx:(Math.random()-0.5)*0.5, dy:(Math.random()-0.5)*0.5, t: Math.random() }); } }
+function drawSymbol(x,y,s){ ctx.save(); ctx.translate(x,y); ctx.rotate((s%2?-1:1)*0.7); ctx.strokeStyle = 'rgba(10,10,10,0.06)'; ctx.lineWidth = Math.max(1, s/12); ctx.beginPath(); ctx.moveTo(-s/2,0); ctx.lineTo(s/2,0); ctx.moveTo(0,-s/2); ctx.lineTo(0,s/2); ctx.stroke(); ctx.beginPath(); ctx.arc(0,0,s/3,0,Math.PI*2); ctx.stroke(); ctx.restore(); }
+function animate(){ ctx.clearRect(0,0,W,H); const g = ctx.createLinearGradient(0,0,W,H); g.addColorStop(0, 'rgba(230,230,232,0.04)'); g.addColorStop(1, 'rgba(250,246,230,0.03)'); ctx.fillStyle = g; ctx.fillRect(0,0,W,H); nodes.forEach(n=>{ n.x += n.dx; n.y += n.dy; if(n.x < -60) n.x = W + 60; if(n.x > W + 60) n.x = -60; if(n.y < -60) n.y = H + 60; if(n.y > H + 60) n.y = -60; if(n.t < 0.35){ ctx.fillStyle = 'rgba(196,154,42,0.06)'; ctx.beginPath(); ctx.arc(n.x,n.y,n.r,0,Math.PI*2); ctx.fill(); } else if(n.t < 0.7){ ctx.strokeStyle = 'rgba(20,20,20,0.05)'; drawSymbol(n.x,n.y,n.r); } else { ctx.fillStyle = 'rgba(180,180,180,0.03)'; ctx.fillRect(n.x-n.r/2,n.y-n.r/2,n.r,n.r); } }); requestAnimationFrame(animate); }
+resizeCanvas(); animate();
+</script>
+</body>
+</html>
