@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RAD. EBENEZER.COM</title>
+
+  <!-- external css -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- favicon placeholder -->
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+</head>
+<body>
+  <!-- Floating mixed background canvas -->
+  <canvas id="bgCanvas" aria-hidden="true"></canvas>
+
+  <!-- Topbar -->
+  <header class="topbar" role="banner">
+    <div class="left-row">
+      <div id="brand" aria-hidden="true">
+        <div class="brand-mark">R-E-U</div>
+        <div class="brand-text">RAD. EBENEZER.COM</div>
+      </div>
+    </div>
+
+    <div class="center-row">
+      <div class="subtitle" id="subtitle">RAD. EBENEZER OKWUANASOR Public Webpage • Phone 08121817693 • 08116249601 • Email: ebenezerokwuanasor@gmail.com</div>
+      <div class="search">
+        <input id="searchInput" type="search" placeholder="Search posts by title..." aria-label="Search posts">
+      </div>
+    </div>
+
+    <div class="right-row">
+      <button id="themeToggle" class="btn ghost" title="Toggle theme">🌞</button>
+      <button id="donateBtn" class="btn donate" title="Donate">💖 Donate</button>
+    </div>
+  </header>
+
+  <!-- Admin floating button (left) -->
+  <button id="adminFloatBtn" class="floating admin-floating" aria-label="Admin">Admin</button>
+
+  <!-- Main posts container -->
+  <main id="main" role="main">
+    <section id="posts" class="posts-grid" aria-live="polite"></section>
+    <div id="emptyHint" class="empty-hint">No posts yet — click Admin to add one.</div>
+  </main>
+
+  <footer class="footer">© <span id="year"></span> RAD. EBENEZER OKWUANASOR</footer>
+
+  <!-- Donate Overlay -->
+  <div id="donateOverlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="panel">
+      <button class="close" data-close="donateOverlay">❌</button>
+      <h3>Support the Vision</h3>
+      <div class="donate-list">
+        <div class="donate-item">
+          <strong>Palmpay</strong><br>
+          Acc no: <code>8116249601</code><br>
+          Acc name: <em>Okwuanasor Francesca Nwamaka</em>
+        </div>
+        <div class="donate-item">
+          <strong>PAGA</strong><br>
+          Acc no: <code>0590180601</code><br>
+          Acc name: <em>Okwuanasor Francesca Nwamaka</em>
+        </div>
+      </div>
+      <p>Email: <a href="mailto:ebenezerokwuanasor@gmail.com">ebenezerokwuanasor@gmail.com</a></p>
+      <p>Phone: 08121817693 / 08116249601</p>
+      <p class="small"><em>If you have made donations, please contact via email. Thanks for your support.</em></p>
+      <div class="panel-actions">
+        <button id="copyAcc" class="btn">Copy Account</button>
+        <button data-close="donateOverlay" class="btn ghost">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Survey Overlay -->
+  <div id="adminSurvey" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="panel">
+      <button class="close" data-close="adminSurvey">❌</button>
+      <h3>Are you an admin?</h3>
+      <div class="panel-actions">
+        <button id="adminNo" class="btn ghost">No</button>
+        <button id="adminYes" class="btn primary">Yes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin password & post overlay -->
+  <div id="adminOverlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="panel wide-panel">
+      <button class="close" data-close="adminOverlay">❌</button>
+
+      <!-- password step -->
+      <div id="adminStepPassword" class="admin-step">
+        <h3>Enter Admin Passkey 🔑</h3>
+        <div class="small">You have <span id="trialsLeft">5</span> trials remaining</div>
+        <input id="adminKeyInput" type="password" placeholder="Enter passkey" autocomplete="off" />
+        <div class="admin-actions">
+          <button id="adminPassSubmit" class="btn primary">Submit</button>
+          <button id="adminPassCancel" class="btn ghost">Cancel</button>
+        </div>
+        <div id="adminPassFeedback" class="feedback" aria-live="polite"></div>
+      </div>
+
+      <!-- post step -->
+      <div id="adminStepPost" class="admin-step" style="display:none">
+        <h3>Create Post</h3>
+        <input id="postTitle" type="text" placeholder="Post title (required)" />
+        <textarea id="postBody" rows="5" placeholder="Write post content here..."></textarea>
+
+        <label class="small">File URL (paste your uploaded GitHub raw URL here)</label>
+        <input id="postFileURL" type="url" placeholder="https://raw.githubusercontent.com/username/repo/main/path/file.png" />
+        <div class="small">Or choose a local file for preview only (not persisted):</div>
+        <input id="postLocalFile" type="file" accept="image/*,video/*,.pdf" />
+
+        <div class="admin-actions">
+          <button id="previewPostBtn" class="btn">Preview</button>
+          <button id="publishPostBtn" class="btn primary">Post</button>
+          <button id="cancelPostBtn" class="btn ghost">Cancel</button>
+        </div>
+        <div id="adminPostFeedback" class="feedback" aria-live="polite"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Post Preview Overlay -->
+  <div id="previewOverlay" class="overlay" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="panel">
+      <button class="close" data-close="previewOverlay">❌</button>
+      <h3>Preview Post</h3>
+      <div id="previewContent"></div>
+      <div class="panel-actions">
+        <button id="confirmPublishBtn" class="btn primary">Confirm & Publish</button>
+        <button data-close="previewOverlay" class="btn ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" aria-hidden="true"></div>
+
+  <!-- External JS -->
+  <script src="script.js" defer></script>
+</body>
+</html>
