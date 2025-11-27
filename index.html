@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>RAD. EBENEZER.COM</title>
+
+  <style>
+  /* -------------------------
+     Colors & base
+     ------------------------- */
+  :root{
+    --royal: #0b64b3;
+    --gold:  #c49a2a;
+    --soft-yellow: #fff6d6;
+    --ash: #e9eaeb;
+    --card: #ffffff;
+    --muted: #6b7280;
+    --accent1: #004ea6;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter, Poppins, system-ui, -apple-system, "Segoe UI", Roboto, Arial;color:#072033}
+  body{background:linear-gradient(180deg,#fbfcfd,#fffaf0);overflow-y:auto}
+
+  /* Canvas background sits behind everything */
+  canvas#bg{position:fixed;inset:0;width:100%;height:100%;z-index:-1}
+
+  /* Top header */
+  header.topbar{
+    position:fixed;top:0;left:0;right:0;height:72px;display:flex;align-items:center;justify-content:space-between;padding:10px 18px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(255,255,255,0.88));
+    box-shadow:0 6px 20px rgba(6,24,55,0.06);z-index:120;backdrop-filter:blur(6px)
+  }
+  .brand{display:flex;align-items:center;gap:10px}
+  .brand-mark{width:48px;height:48px;border-radius:10px;background:linear-gradient(135deg,var(--royal),#005ea0);color:white;display:flex;align-items:center;justify-content:center;font-weight:800}
+  .brand-text{font-weight:800;color:var(--royal);font-size:1rem}
+  .subtitle{font-size:0.9rem;max-width:560px;white-space:nowrap;overflow:hidden}
+  .search{display:flex;align-items:center;gap:8px}
+  .search input{padding:8px 10px;border-radius:10px;border:1px solid #e6e9ef;width:260px}
+
+  /* Buttons */
+  .btn{padding:8px 12px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+  .btn.ghost{background:transparent;border:1px solid #e6e9ef}
+  .btn.primary{background:var(--royal);color:#fff}
+  .btn.donate{background:linear-gradient(90deg,#ff5ea2,#ff7ab6);color:#fff}
+
+  /* Admin & Donate floating buttons positions */
+  #adminFloat{position:fixed;left:16px;top:86px;z-index:130}
+  #donateFloat{position:fixed;right:18px;top:18px;z-index:130}
+
+  /* Main layout */
+  main{padding:110px 18px 80px;max-width:1100px;margin:0 auto;display:grid;gap:16px}
+  .posts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+  .card{background:var(--card);border-radius:12px;padding:16px;box-shadow:0 12px 30px rgba(2,6,23,0.06)}
+  .card h3{margin:0 0 6px 0;color:var(--royal)}
+  .meta{font-size:0.85rem;color:var(--muted);margin-bottom:8px}
+  .card img, .card video{width:100%;border-radius:8px;margin-top:8px}
+  .download{display:inline-block;margin-top:10px;padding:8px 12px;border-radius:8px;background:linear-gradient(90deg,var(--royal),#005ea0);color:#fff;text-decoration:none}
+
+  /* Footer */
+  footer{padding:28px 18px;text-align:center;color:var(--muted)}
+
+  /* Overlay (generic) */
+  .overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.55);z-index:200}
+  .panel{background:#fff;border-radius:12px;padding:18px;max-width:820px;width:94%;position:relative;box-shadow:0 30px 80px rgba(2,6,23,0.3)}
+  .panel.wide{max-width:980px}
+  .panel .close{position:absolute;top:12px;right:12px;background:#ff3b3b;color:#fff;border:0;padding:6px 8px;border-radius:8px;cursor:pointer}
+
+  /* Admin steps */
+  .admin-steps{display:flex;flex-direction:column;gap:8px}
+  input[type="text"], input[type="url"], input[type="password"], textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9ef}
+  textarea{min-height:120px;resize:vertical}
+  .small{font-size:0.9rem;color:var(--muted)}
+  .feedback{margin-top:10px;font-weight:700}
+
+  /* Preview area */
+  #previewContent{max-height:60vh;overflow:auto;padding:8px}
+
+  /* Toast */
+  #toast{position:fixed;right:18px;bottom:20px;background:#071530;color:#fff;padding:10px 14px;border-radius:10px;display:none;z-index:500}
+
+  /* Responsive */
+  @media (max-width:720px){
+    .search input{width:140px}
+    .subtitle{display:none}
+    #adminFloat{left:8px;top:80px}
+  }
+  </style>
+</head>
+<body>
+  <!-- Animated background canvas -->
+  <canvas id="bg" aria-hidden="true"></canvas>
+
+  <!-- Header -->
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark">R-E-U</div>
+      <div class="brand-text">RAD. EBENEZER.COM</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+      <div class="subtitle" id="subtitle">RAD. EBENEZER OKWUANASOR Public Webpage • Phone 08121817693 & 08116249601 • Email ebenezerokwuanasor@gmail.com</div>
+      <div class="search"><input id="searchInput" type="search" placeholder="Search posts..." aria-label="Search posts"></div>
+    </div>
+
+    <div style="display:flex;align-items:center;gap:10px;">
+      <button id="themeBtn" class="btn ghost" title="Toggle theme">🌞</button>
+      <button id="donateFloat" class="btn donate" title="Donate">💖 Donate</button>
+    </div>
+  </header>
+
+  <!-- Admin floating -->
+  <div id="adminFloat">
+    <button id="adminBtn" class="btn primary">Admin</button>
+  </div>
+
+  <!-- Main posts -->
+  <main>
+    <section id="posts" class="posts-grid" aria-live="polite"></section>
+    <div id="empty" class="card" style="text-align:center;">No posts yet — use Admin to create one.</div>
+  </main>
+
+  <footer>© <span id="year"></span> RAD. EBENEZER OKWUANASOR</footer>
+
+  <!-- Donate Overlay -->
+  <div id="donateOverlay" class="overlay" role="dialog" aria-hidden="true">
+    <div class="panel">
+      <button class="close" data-close="donateOverlay">❌</button>
+      <h3 style="margin:0 0 8px 0">Support the Vision</h3>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div style="flex:1;min-width:200px">
+          <strong>Palmpay</strong><br>
+          Acc no: <code>8116249601</code><br>
+          Acc name: <em>Okwuanasor Francesca Nwamaka</em><br>
+        </div>
+        <div style="flex:1;min-width:200px">
+          <strong>PAGA</strong><br>
+          Acc no: <code>0590180601</code><br>
+          Acc name: <em>Okwuanasor Francesca Nwamaka</em><br>
+        </div>
+      </div>
+      <p style="margin-top:8px">Email: <a href="mailto:ebenezerokwuanasor@gmail.com">ebenezerokwuanasor@gmail.com</a></p>
+      <p class="small"><em>If you have made donations, please contact via email. Thanks for your support.</em></p>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px">
+        <button id="copyAcc" class="btn">Copy Account</button>
+        <button data-close="donateOverlay" class="btn ghost">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Survey Overlay -->
+  <div id="surveyOverlay" class="overlay" role="dialog" aria-hidden="true">
+    <div class="panel">
+      <button class="close" data-close="surveyOverlay">❌</button>
+      <h3>Are you an admin?</h3>
+      <div style="display:flex;gap:12px;justify-content:center;margin-top:12px">
+        <button id="surveyNo" class="btn ghost">No</button>
+        <button id="surveyYes" class="btn primary">Yes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Admin Panel (password -> post) -->
+  <div id="adminOverlay" class="overlay" role="dialog" aria-hidden="true">
+    <div class="panel wide">
+      <button class="close" data-close="adminOverlay">❌</button>
+
+      <!-- PASSWORD STEP -->
+      <div id="stepPassword" class="admin-steps">
+        <h3>Enter Admin Passkey 🔑</h3>
+        <div class="small">You have <span id="trialsLeft">5</span> trials remaining in this browser</div>
+        <input id="adminPass" type="password" placeholder="Enter passkey" />
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button id="passSubmit" class="btn primary">Submit</button>
+          <button id="passCancel" class="btn ghost">Cancel</button>
+        </div>
+        <div id="passFeedback" class="feedback"></div>
+      </div>
+
+      <!-- POST STEP -->
+      <div id="stepPost" class="admin-steps" style="display:none">
+        <h3>Create Post</h3>
+        <input id="postTitle" type="text" placeholder="Post title (required)"/>
+        <textarea id="postBody" placeholder="Write post content..." ></textarea>
+
+        <label class="small">File URL (paste your RAW GitHub URL from your repo)</label>
+        <input id="postFile" type="url" placeholder="https://raw.githubusercontent.com/ebenezerokwuanasor-png/BRANCH/path/file.png" />
+        <div class="small">Or choose local file for preview only (not persisted):</div>
+        <input id="postLocal" type="file" accept="image/*,video/*,.pdf" />
+
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button id="previewBtn" class="btn">Preview</button>
+          <button id="publishBtn" class="btn primary">Post</button>
+          <button id="cancelPost" class="btn ghost">Cancel</button>
+        </div>
+        <div id="postFeedback" class="feedback"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Preview Overlay -->
+  <div id="previewOverlay" class="overlay" role="dialog" aria-hidden="true">
+    <div class="panel">
+      <button class="close" data-close="previewOverlay">❌</button>
+      <h3>Preview</h3>
+      <div id="previewContent"></div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:12px">
+        <button id="confirmPublish" class="btn primary">Confirm & Publish</button>
+        <button data-close="previewOverlay" class="btn ghost">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast"></div>
+
+  <script>
+  /************************************************************************
+   * RAD. EBENEZER - single-file app script
+   * - Admin survey -> password with 5-trial lockout per browser (24 hrs)
+   * - Smart GitHub RAW URL checker ONLY for repo 'ebenezerokwuanasor-png'
+   * - Preview, Confirm, Append posts.json, Auto-download updated posts.json
+   * - Donate overlay copy, search, animated background
+   ************************************************************************/
+
+  (function(){
+    const ADMIN_PASS = "@RADEBENEZER3008123400";
+    const MAX_TRIALS = 5;
+    const LOCK_KEY = "rad_lock_v1";
+    const TRIALS_KEY = "rad_trials_v1";
+    const BACKUP_KEY = "rad_backup_v1";
+    const POSTS_FILE = "posts.json";
+    const ALLOWED_REPO = "ebenezerokwuanasor-png";
+
+    // utilities
+    const $ = id => document.getElementById(id);
+    const now = () => Date.now();
+    function toast(msg, t=2200){ const el=$('toast'); el.textContent = msg; el.style.display='block'; setTimeout(()=>el.style.display='none', t); }
+
+    // set year
+    $('year').textContent = new Date().getFullYear();
+
+    // Canvas background (radiography + christian + ash/yellow)
+    const canvas = $('bg'), ctx = canvas.getContext('2d');
+    let W = innerWidth, H = innerHeight, symbols = [];
+    function resize(){ W = innerWidth; H = innerHeight; canvas.width=W; canvas.height=H; initSymbols(); }
+    window.addEventListener('resize', resize); resize();
+    function initSymbols(){
+      symbols=[]; const n = Math.max(18, Math.floor(W/80));
+      for(let i=0;i<n;i++) symbols.push({x:Math.random()*W,y:Math.random()*H,r:6+Math.random()*28,dx:(Math.random()-0.5)*0.5,dy:(Math.random()-0.5)*0.5,t:Math.random()*1000});
+    }
+    function drawSymbol(s){
+      ctx.save(); ctx.translate(s.x,s.y); ctx.globalAlpha = 0.10 + 0.4*Math.sin(s.t*0.02);
+      ctx.strokeStyle = "rgba(10,10,10,0.06)"; ctx.lineWidth = Math.max(1, s.r/16);
+      ctx.beginPath(); ctx.moveTo(-s.r/2,0); ctx.lineTo(s.r/2,0); ctx.moveTo(0,-s.r/2); ctx.lineTo(0,s.r/2); ctx.stroke();
+      ctx.beginPath(); ctx.arc(0,0,s.r/3,0,Math.PI*2); ctx.stroke();
+      ctx.restore();
+    }
+    function animate(){
+      ctx.clearRect(0,0,W,H);
+      // gradient base: combine options heavy(1,2,5)+slight(3,4)
+      const g = ctx.createLinearGradient(0,0,W,H);
+      g.addColorStop(0,"rgba(12,25,48,0.06)"); g.addColorStop(0.5,"rgba(255,247,224,0.05)"); g.addColorStop(1,"rgba(245,247,250,0.04)");
+      ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+      // soft gold halo
+      ctx.save(); ctx.globalCompositeOperation='screen'; ctx.fillStyle='rgba(196,154,42,0.02)'; ctx.beginPath(); ctx.ellipse(W*0.82,H*0.22,W*0.6,H*0.6,0,0,Math.PI*2); ctx.fill(); ctx.restore();
+      // neon wave lines subtle
+      for(let i=0;i<3;i++){
+        ctx.beginPath();
+        const y = H*0.2 + Math.sin(Date.now()/1800 + i)*60;
+        ctx.moveTo(0,y);
+        for(let x=0;x<W;x+=40) ctx.lineTo(x, y + Math.sin((x+i*50)/80 + Date.now()/1500)*30);
+        ctx.strokeStyle = "rgba(12,99,179,0.02)"; ctx.lineWidth = 2; ctx.stroke();
+      }
+      symbols.forEach(s=>{ drawSymbol(s); s.x+=s.dx; s.y+=s.dy; s.t+=0.5; if(s.x<-80) s.x=W+80; if(s.x>W+80) s.x=-80; if(s.y<-80) s.y=H+80; if(s.y>H+80) s.y=-80; });
+      requestAnimationFrame(animate);
+    }
+    animate();
+
+    // overlay helpers
+    function showOverlay(id){ const el=$(id); if(!el) return; el.style.display='flex'; el.setAttribute('aria-hidden','false'); }
+    function hideOverlay(id){ const el=$(id); if(!el) return; el.style.display='none'; el.setAttribute('aria-hidden','true'); }
+    document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', e=>{ const t=e.currentTarget.getAttribute('data-close'); hideOverlay(t); }));
+
+    // storage helpers
+    function getLock(){ return Number(localStorage.getItem(LOCK_KEY) || 0); }
+    function setLock(ts){ localStorage.setItem(LOCK_KEY, String(ts)); }
+    function getTrials(){ return Number(localStorage.getItem(TRIALS_KEY) || 0); }
+    function setTrials(n){ localStorage.setItem(TRIALS_KEY, String(n)); }
+    function isLocked(){ const l=getLock(); return l && now() < l; }
+    function lockRemaining(){ const l=getLock(); return Math.max(0, l - now()); }
+
+    // posts array
+    let posts = [];
+
+    // load posts.json (try network then local backup)
+    async function loadPosts(){
+      try{
+        const r = await fetch(POSTS_FILE + '?_=' + Date.now());
+        if(!r.ok) throw new Error('no posts');
+        posts = await r.json();
+      } catch(e){
+        posts = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
+      }
+      renderPosts();
+    }
+
+    // render posts
+    function renderPosts(){
+      const container = $('posts');
+      container.innerHTML = '';
+      if(!posts || posts.length===0){ $('empty').style.display='block'; return; } else $('empty').style.display='none';
+      // newest first
+      posts.slice().reverse().forEach(p=>{
+        const card = document.createElement('article'); card.className='card';
+        const dateTxt = p.date ? new Date(p.date).toLocaleString() : '';
+        let html = `<h3>${escapeHtml(p.title)}</h3><div class="meta">${dateTxt}</div><div class="content">${p.content||''}</div>`;
+        if(p.fileURL){
+          const ext = (p.fileURL.split('.').pop()||'').toLowerCase();
+          if(['png','jpg','jpeg','webp','gif'].includes(ext)) html += `<img src="${p.fileURL}" alt="${escapeHtml(p.title)}">`;
+          else if(['mp4','webm','ogg'].includes(ext)) html += `<video controls src="${p.fileURL}"></video>`;
+          else if(ext==='pdf') html += `<div><a class="download" href="${p.fileURL}" download>Open / Download PDF</a></div>`;
+          else html += `<div><a class="download" href="${p.fileURL}" target="_blank">Open file</a></div>`;
+          html += `<div style="margin-top:10px"><a class="btn primary" href="${p.fileURL}" download>⬇️ Download</a></div>`;
+        }
+        html += `<div style="margin-top:10px"><button class="btn ghost" onclick="tryShare('${encodeURIComponent(p.title)}','${encodeURIComponent(p.fileURL||location.href)}')">🔗 Share</button></div>`;
+        card.innerHTML = html;
+        container.appendChild(card);
+      });
+    }
+
+    window.tryShare = function(t,u){ try{ const url = decodeURIComponent(u||''); if(navigator.share) navigator.share({title:decodeURIComponent(t||''),url}); else navigator.clipboard.writeText(url||location.href).then(()=>alert('Link copied')); }catch(e){ alert('Share failed'); } };
+
+    function escapeHtml(s){ if(!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+    // search
+    $('searchInput').addEventListener('input', async e=>{
+      const q = (e.target.value||'').toLowerCase();
+      if(!q){ renderPosts(); return; }
+      const filtered = (posts||[]).filter(p=> (p.title||'').toLowerCase().includes(q) || (p.content||'').toLowerCase().includes(q));
+      const container = $('posts'); container.innerHTML=''; filtered.slice().reverse().forEach(p=>{
+        const card = document.createElement('article'); card.className='card';
+        card.innerHTML = `<h3>${escapeHtml(p.title)}</h3><div class="meta">${p.date ? new Date(p.date).toLocaleString():''}</div><div>${p.content||''}</div>`;
+        container.appendChild(card);
+      });
+    });
+
+    // donate overlay handlers
+    $('donateFloat').addEventListener('click', ()=> showOverlay('donateOverlay'));
+    $('copyAcc').addEventListener('click', ()=>{
+      const txt = "Palmpay Acc: 8116249601 (Okwuanasor Francesca Nwamaka) OR PAGA Acc: 0590180601 (Okwuanasor Francesca Nwamaka)";
+      navigator.clipboard.writeText(txt).then(()=> toast('Account details copied'));
+    });
+
+    // admin flow
+    $('adminBtn').addEventListener('click', ()=>{
+      if(isLocked()){
+        const ms = lockRemaining(); const s = Math.floor(ms/1000)%60; const m=Math.floor(ms/60000)%60; const h=Math.floor(ms/3600000);
+        return toast(`Admin locked for this browser: ${h}h ${m}m ${s}s`);
+      }
+      showOverlay('surveyOverlay');
+    });
+    $('surveyNo').addEventListener('click', ()=> hideOverlay('surveyOverlay'));
+    $('surveyYes').addEventListener('click', ()=> { hideOverlay('surveyOverlay'); showOverlay('adminOverlay'); $('stepPassword').style.display='block'; $('stepPost').style.display='none'; $('trialsLeft').textContent = Math.max(0, MAX_TRIALS - getTrials()); $('passFeedback').textContent=''; $('adminPass').value=''; });
+
+    $('passCancel').addEventListener('click', ()=> hideOverlay('adminOverlay'));
+    $('passSubmit').addEventListener('click', ()=>{
+      if(isLocked()){ toast('Admin locked'); hideOverlay('adminOverlay'); return; }
+      const val = ($('adminPass').value||'').trim();
+      if(val === ADMIN_PASS){
+        setTrials(0);
+        $('passFeedback').style.color='green'; $('passFeedback').textContent='✅ Passkey accepted — opening admin panel';
+        setTimeout(()=>{ $('stepPassword').style.display='none'; $('stepPost').style.display='block'; $('passFeedback').textContent=''; }, 450);
+      } else {
+        const t = getTrials()+1; setTrials(t); const remain = Math.max(0, MAX_TRIALS - t);
+        $('passFeedback').style.color = '#d14343'; $('passFeedback').textContent = `❌ Incorrect passkey. ${remain} trials remaining.`;
+        if(t >= MAX_TRIALS){ setLock(now() + 24*60*60*1000); hideOverlay('adminOverlay'); toast('Admin locked for 24 hours (this browser).'); }
+      }
+    });
+ // preview & publish
+    $('previewBtn').addEventListener('click', async ()=>{
+      const title = ($('postTitle').value||'').trim();
+      const body = ($('postBody').value||'').trim();
+      const fileURL = ($('postFile').value||'').trim();
+      const localFile = $('postLocal').files[0];
+      if(!title || !body) { $('postFeedback').textContent='Title and content required'; $('postFeedback').style.color='#d14343'; return; }
+      let fileToShow = '';
+      if(fileURL){
+        $('postFeedback').textContent='Validating URL...'; $('postFeedback').style.color='black';
+        const ok = await isValidGithubRawUrl(fileURL);
+        if(!ok){ $('postFeedback').textContent='Error 105: URL not found or not in your GitHub repo'; $('postFeedback').style.color='#d14343'; return; }
+        fileToShow = fileURL;
+      } else if(localFile){
+        fileToShow = await fileToDataURL(localFile);
+      }
+      let html = `<h4>${escapeHtml(title)}</h4><p>${escapeHtml(body).replace(/\n/g,'<br>')}</p>`;
+      if(fileToShow){
+        const ext = fileToShow.split('.').pop().split('?')[0].toLowerCase();
+        if(fileToShow.startsWith('data:')) {
+          if(fileToShow.startsWith('data:image')) html += `<img src="${fileToShow}" style="max-width:100%;border-radius:8px">`;
+          else if(fileToShow.startsWith('data:video')) html += `<video src="${fileToShow}" controls style="max-width:100%"></video>`;
+          else html += `<a href="${fileToShow}" download>Download file</a>`;
+        } else {
+          if(['png','jpg','jpeg','webp','gif'].includes(ext)) html += `<img src="${fileToShow}" style="max-width:100%;border-radius:8px">`;
+          else if(['mp4','webm','ogg'].includes(ext)) html += `<video src="${fileToShow}" controls style="max-width:100%"></video>`;
+          else if(ext==='pdf') html += `<a href="${fileToShow}" download>Open PDF</a>`;
+          else html += `<a href="${fileToShow}" target="_blank">Open file</a>`;
+        }
+      }
+      $('previewContent').innerHTML = html;
+      showOverlay('previewOverlay');
+      $('postFeedback').textContent = '';
+    });
+
+    $('confirmPublish').addEventListener('click', async ()=>{
+      const title = ($('postTitle').value||'').trim();
+      const body = ($('postBody').value||'').trim();
+      const fileURL = ($('postFile').value||'').trim();
+      const localFile = $('postLocal').files[0];
+      if(!title || !body) { $('postFeedback').textContent='Title and content required'; $('postFeedback').style.color='#d14343'; return; }
+      let finalURL = '';
+      if(fileURL){
+        $('postFeedback').textContent='Validating final URL...';
+        const ok = await isValidGithubRawUrl(fileURL);
+        if(!ok){ $('postFeedback').textContent='Error 105: URL not found or not in your GitHub repo'; $('postFeedback').style.color='#d14343'; return; }
+        finalURL = fileURL;
+      } else if(localFile){
+        finalURL = await fileToDataURL(localFile);
+      }
+      // build object and append
+      const newPost = { id: 'p_' + Date.now().toString(36), title, date: new Date().toISOString(), content: body, fileURL: finalURL };
+      posts.push(newPost);
+      localStorage.setItem(BACKUP_KEY, JSON.stringify(posts));
+      renderPosts();
+      downloadPostsJson(posts);
+      hideOverlay('previewOverlay'); hideOverlay('adminOverlay');
+      toast('Post created and posts.json downloaded. Upload posts.json + file to GitHub to persist.');
+      // clear
+      $('postTitle').value=''; $('postBody').value=''; $('postFile').value=''; $('postLocal').value='';
+    });
+
+    // publish direct (confirm pass)
+    $('publishBtn').addEventListener('click', ()=>{
+      const pass = prompt('Confirm admin passkey to publish:');
+      if(pass !== ADMIN_PASS){ $('postFeedback').textContent='Publish confirmation failed.'; $('postFeedback').style.color='#d14343'; return; }
+      $('confirmPublish').click();
+    });
+    $('cancelPost').addEventListener('click', ()=> hideOverlay('adminOverlay'));
+
+    // helper: file -> dataURL
+    function fileToDataURL(file){ return new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=()=>rej('readerror'); fr.readAsDataURL(file); }); }
+
+    // download posts.json
+    function downloadPostsJson(obj){
+      const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = POSTS_FILE; document.body.appendChild(a); a.click(); a.remove();
+    }
+
+    // URL validation: only allow raw.githubusercontent.com URLs containing your repo OR your github.io host
+    function normalizeURL(u){
+      try{
+        const x = new URL(u);
+        return x;
+      }catch(e){ return null; }
+    }
+    async function isValidGithubRawUrl(url){
+      if(!url) return false;
+      const u = normalizeURL(url);
+      if(!u) return false;
+      // block local: file:, content:, storage paths
+      if(u.protocol === 'file:' || u.protocol === 'content:') return false;
+      // allow raw.githubusercontent.com with repo check
+      if(u.hostname.includes('raw.githubusercontent.com')){
+        const parts = u.pathname.split('/').filter(Boolean);
+        // raw.githubusercontent.com/{user}/{repo}/{branch}/path...
+        if(parts.length < 4) return false;
+        const repo = parts[1];
+        if(repo !== ALLOWED_REPO) return false;
+        // check exists
+        try{ const r = await fetch(url, { method:'GET', cache:'no-store' }); return r.ok; } catch(e){ return false; }
+      }
+      // allow github pages for your repo domain: https://USERNAME.github.io/...
+      if(u.hostname === ALLOWED_REPO + '.github.io' || u.hostname.endsWith('.github.io')){
+        try{ const r = await fetch(url, { method:'GET', cache:'no-store' }); return r.ok; } catch(e){ return false; }
+      }
+      return false;
+    }
+
+    // lock/trial helpers
+    function getTrials(){ return Number(localStorage.getItem(TRIALS_KEY) || 0); }
+    function setTrials(v){ localStorage.setItem(TRIALS_KEY, String(v)); }
+    function setLockUntil(ts){ localStorage.setItem(LOCK_KEY, String(ts)); }
+    function getLockUntil(){ return Number(localStorage.getItem(LOCK_KEY) || 0); }
+    function isLockedNow(){ const u=getLockUntil(); return u && now() < u; }
+
+    // render initial posts: fetch or local backup
+    async function initLoad(){
+      try{
+        const r = await fetch(POSTS_FILE + '?_=' + Date.now());
+        if(!r.ok) throw new Error('no posts');
+        posts = await r.json();
+      } catch(e){
+        posts = JSON.parse(localStorage.getItem(BACKUP_KEY) || '[]');
+      }
+      renderPosts();
+    }
+
+    // renderPosts defined earlier in closure; exposed for __RAD
+    // expose small API
+    window.__RAD = { reload: initLoad };
+
+    // admin unlock UI: update trials counter
+    function updateTrialsUI(){ const t = Math.max(0, MAX_TRIALS - getTrials()); $('trialsLeft').textContent = t; }
+
+    // show/hide overlay: implemented above
+    // getTrials wrapper
+    function getTrials(){ return Number(localStorage.getItem(TRIALS_KEY) || 0); }
+
+    // simple helper to setTrials (already above)
+    // attach listeners already done
+
+    // init handlers already attached above, now finish initialization
+    initLoad();
+    updateTrialsUI();
+
+    // expose some for dev
+    window.__TEST = { isLocked:isLockedNow, getTrials:getTrials, posts:posts };
+
+  })();
+  </script>
+</body>
+</html>
+
