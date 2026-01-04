@@ -638,6 +638,11 @@ const db = getFirestore(app);
   getAuth, 
   signInWithEmailAndPassword, 
   onAuthStateChanged 
+      onAuthStateChanged(auth, (user) => {
+  if (!user) {
+    closeAdminPanel();
+  }
+});
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 import { 
