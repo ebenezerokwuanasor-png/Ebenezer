@@ -643,6 +643,25 @@ const db = getFirestore(app);
 import { 
   getFirestore 
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+    const adminBtn = document.getElementById("adminBtn"); // your existing admin button
+const overlay = document.getElementById("adminLoginOverlay");
+
+adminBtn.onclick = () => {
+  overlay.style.display = "block";
+};
+
+document.getElementById("adminLoginBtn").onclick = async () => {
+  const email = document.getElementById("adminEmail").value;
+  const password = document.getElementById("adminPassword").value;
+
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
+    overlay.style.display = "none";
+    openAdminPanel(); // your existing admin panel function
+  } catch (err) {
+    document.getElementById("adminLoginError").textContent = "Access denied";
+  }
+};
 ‎</script>
 </body>
 </html>
