@@ -636,7 +636,14 @@
 const db = getFirestore(app);
     import { 
   getAuth, 
-  signInWithEmailAndPassword, 
+  signInWithEmailAndPassword( auth, email, password)
+      signInWithEmailAndPassword(auth, email, password)
+  .then((userCredential) => {
+    openAdminPanel();
+  })
+  .catch((error) => {
+    alert("Wrong admin credentials");
+  });
   onAuthStateChanged 
       onAuthStateChanged(auth, (user) => {
   if (!user) {
