@@ -667,6 +667,34 @@ document.getElementById("adminLoginBtn").onclick = async () => {
   }
 };
 ‎</script>
+  <script>
+/* ===== ADMIN AUTH HANDLER ===== */
+
+const adminLoginBtn = document.getElementById("adminLoginBtn");
+
+adminLoginBtn.addEventListener("click", async () => {
+  const email = document.getElementById("adminEmail")?.value;
+  const password = document.getElementById("adminPassword")?.value;
+
+  if (!email || !password) {
+    alert("Please enter email and password");
+    return;
+  }
+
+  try {
+    const userCredential = await firebase.auth().signInWithEmailAndPassword(email, password);
+
+    // SUCCESS
+    document.getElementById("adminOverlay").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+
+    console.log("Admin logged in:", userCredential.user.email);
+
+  } catch (error) {
+    alert("Access denied: " + error.message);
+  }
+});
+  </script>
 </body>
 </html>
 
