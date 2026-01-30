@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Official website of Ebenezer Okwuanasor - RAD EBENEZER.COM">
+<meta name="author" content="Ebenezer Okwuanasor">
+<meta name="keywords" content="Ebenezer Okwuanasor, RAD EBENEZER, Posts, Info, Locked Content, Free Posts, Code Generator">
+<title>RAD EBENEZER.COM</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+  body{transition:0.4s;background:#f0f0f0;color:#111;}
+  body.dark{background:#111;color:#f0f0f0;}
+  .btn{padding:8px 12px;margin:5px;border:none;border-radius:5px;background:#007BFF;color:#fff;cursor:pointer;}
+  .btn:hover{background:#0056b3;}
+  .overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:center;z-index:1000;}
+  .overlay-content{background:#fff;padding:20px;border-radius:12px;max-width:600px;width:90%;position:relative;text-align:center;}
+  body.dark .overlay-content{background:#222;color:#f0f0f0;}
+  .close-btn{position:absolute;top:10px;right:15px;font-size:20px;font-weight:bold;cursor:pointer;}
+  .top-left{position:fixed;top:15px;left:15px;z-index:100;}
+  .top-mid{position:fixed;top:15px;left:50%;transform:translateX(-50%);z-index:100;}
+  .top-right{position:fixed;top:15px;right:15px;z-index:100;}
+  .bottom-left{position:fixed;bottom:15px;left:15px;z-index:100;}
+  .bottom-right{position:fixed;bottom:15px;right:15px;z-index:100;}
+  .theme-btn{margin-left:10px;padding:5px 10px;border-radius:5px;}
+  input,textarea{width:100%;padding:8px;margin:5px 0;border-radius:5px;border:1px solid #ccc;}
+  input[type="password"]{letter-spacing:2px;}
+  .post{border:1px solid #ccc;padding:15px;margin:15px auto;border-radius:12px;max-width:700px;background:#fff;}
+  body.dark .post{background:#222;border-color:#444;}
+  .post-title{font-size:20px;font-weight:bold;}
+  .post-date{font-size:12px;color:#666;margin-bottom:10px;}
+  body.dark .post-date{color:#aaa;}
+  #site-logo{font-size:28px;font-weight:bold;background:linear-gradient(45deg,#ff00cc,#3333ff);-webkit-background-clip:text;color:transparent;text-shadow:0 0 8px rgba(0,0,0,0.2);cursor:pointer;position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:99;}
+  #search-bar{position:fixed;top:120px;left:50%;transform:translateX(-50%);z-index:99;width:60%;max-width:600px;padding:5px 10px;border-radius:8px;border:1px solid #ccc;}
+  body.dark #search-bar{border-color:#444;background:#333;color:#f0f0f0;}
+  .file-actions{margin-top:10px;}
+</style>
+</head>
+<body>
+
+<!-- BUTTONS -->
+<button class="top-left btn" id="admin-btn">Admin</button>
+<img src="favicon.png" class="top-mid" id="favicon-btn" style="width:50px;height:50px;border-radius:50%;cursor:pointer;">
+<input type="text" id="search-bar" placeholder="Search posts...">
+<button class="theme-btn top-right" id="theme-toggle">🌞/🌕</button>
+<button class="bottom-left btn" id="info-btn">Info</button>
+<button class="bottom-right btn" id="contact-btn">Contact</button>
+<div id="site-logo">RAD EBENEZER.COM</div>
+
+<!-- POSTS CONTAINER -->
+<div id="posts-container"></div>
+
+<!-- OVERLAYS -->
+<!-- Admin Login -->
+<div class="overlay" id="admin-overlay">
+  <div class="overlay-content">
+    <span class="close-btn" onclick="closeOverlay('admin-overlay')">&times;</span>
+    <h2>Admin Login</h2>
+    <input type="email" id="admin-email" placeholder="Email">
+    <div style="position:relative;">
+      <input type="password" id="admin-password" placeholder="Password">
+      <span id="toggle-pass" style="position:absolute; right:10px; top:8px; cursor:pointer;">👁️‍🗨️</span>
+    </div>
+    <button class="btn" id="admin-login-btn">Login</button>
+    <p id="admin-login-msg"></p>
+  </div>
+</div>
+
+<!-- Admin Panel -->
+<div class="overlay" id="admin-panel-overlay">
+  <div class="overlay-content">
+    <span class="close-btn" onclick="closeOverlay('admin-panel-overlay')">&times;</span>
+    <h2>Admin Panel</h2>
+    <button class="btn" onclick="openOverlay('make-post-overlay')">Make a Post</button>
+    <button class="btn" onclick="openOverlay('generate-code-overlay')">Generate Unlock Code</button>
+    <button class="btn" onclick="openOverlay('upload-info-overlay')">Upload Info</button>
+  </div>
+</div>
+
+<!-- Make Post Type -->
+<div class="overlay" id="make-post-overlay">
+  <div class="overlay-content">
+    <span class="close-btn" onclick="closeOverlay('make-post-overlay')">&times;</span>
+    <h3>Choose Post Type</h3>
+    <button class="btn" onclick="openOverlay('free-post-overlay')">Free Post</button>
+    <button class="btn" onclick="openOverlay('locked-post-overlay')">Locked Post</button>
+  </div>
+</div>
+
+<!-- Free Post -->
+<div class="overlay" id="free-post-overlay">
+  <div class="overlay-content">
+    <span class="close-btn" onclick="closeOverlay('free-post-overlay')">&times;</span>
+    <h3>Make Free Post</h3>
+    <input type="text" id="free-title" placeholder="Post Title">
+    <textarea id="free-body" placeholder="Post Body"></textarea>
+    <input type="text" id="free-file-url" placeholder="File URL (optional)">
+    <button class="btn" onclick="publishFreePost()">Publish</button>
+  </div>
+</div>
+
+<!-- Locked Post -->
+<div class="overlay" id="locked-post-overlay">
+  <div class="overlay-content">
+    <span class="close-btn" onclick="closeOverlay('locked-post-overlay')">&times;</span>
+    <h3>Make Locked Post</h3>
+    <input type="text" id="locked-title" placeholder="Post Title">
+    <textarea id="locked-body" placeholder="Post Body"></textarea>
+    <input type="text" id="locked-file-url" placeholder="File URL (optional)">
+    <input type="text" id="locked-account" placeholder="Account Details">
+    <input type="text" id="locked-currency" placeholder="Currency">
+    <input type="number" id="locked-price" placeholder="Price">
+    <button class="btn" onclick="publishLockedPost()">Publish</button>
+  </div>
+</div>
+
+<!-- Generate Code -->
+<div class="overlay" id="generate-code-overlay">
+  <div class="overlay-content">
+    <span class="close-btn" onclick="closeOverlay('generate-code-overlay')">&times;</span>
+    <h3>Generate Unlock Code</h3>
+    <button class="btn" onclick="generateUnlockCode()">Generate 20-digit Code</button>
+    <p id="generated-code" style="word-break:break-all;"></p>
+    <button class="btn" onclick="copyGeneratedCode()">Copy Code</button>
+  </div>
+</div>
+
+<!-- Upload Info -->
+<div class="overlay" id="upload-info-overlay">
+  <div class="overlay-content">
+    <span class="close-btn" onclick="closeOverlay('upload-info-overlay')">&times;</span>
+    <h3>Upload Info Post</h3>
+    <input type="text" id="info-title" placeholder="Title">
+    <textarea id="info-body" placeholder="Info Body"></textarea>
+    <input type="text" id="info-file-url" placeholder="File URL (optional)">
+    <button class="btn" onclick="publishInfo()">Publish</button>
+  </div>
+</div>
+
+<!-- Info Display -->
+<div class="overlay" id="info-display-overlay">
+  <div class="overlay-content">
+    <span class="close-btn" onclick="closeOverlay('info-display-overlay')">&times;</span>
+    <h3>Info Posts</h3>
+    <input type="text" id="info-search" placeholder="Search info..." oninput="filterInfoPosts()">
+    <div id="info-posts-container"></div>
+  </div>
+</div>
+
+<!-- Contact -->
+<div class="overlay" id="contact-overlay">
+  <div class="overlay-content">
+    <span class="close-btn" onclick="closeOverlay('contact-overlay')">&times;</span>
+    <h3>Contact</h3>
+    <img src="favicon.png" style="width:50px;border-radius:50%;"><br>
+    <p>ebenezerokwuanasor@gmail.com</p>
+    <button class="btn" onclick="copyText('ebenezerokwuanasor@gmail.com')">Copy Email</button>
+  </div>
+</div>
+
+<!-- Favicon Overlay -->
+<div class="overlay" id="favicon-overlay">
+  <div class="overlay-content">
+    <span class="close-btn" onclick="closeOverlay('favicon-overlay')">&times;</span>
+    <img src="favicon.png" style="width:150px;border-radius:50%;"><br>
+    <em>EBENEZER / SITE ADMIN</em>
+  </div>
+</div>
+
+<!-- Logo Overlay -->
+<div class="overlay" id="logo-overlay">
+  <div class="overlay-content">
+    <span class="close-btn" onclick="closeOverlay('logo-overlay')">&times;</span>
+    <h2 style="background:linear-gradient(45deg,#ff00cc,#3333ff);-webkit-background-clip:text;color:transparent;">Official website of Okwuanasor Ebenezer</h2>
+  </div>
+</div>
+
+<!-- FIREBASE & JS -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAdX_Vtx_Nka22I19xFbcYGw5Axa8RG7EU",
+  authDomain: "rad-ebenzer-isd.firebaseapp.com",
+  projectId: "rad-ebenzer-isd",
+  storageBucket: "rad-ebenzer-isd.firebasestorage.app",
+  messagingSenderId: "982141158464",
+  appId: "1:982141158464:web:ecbe1036ec51de4061cba5"
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+/* UTILITY */
+const openOverlay = id=>document.getElementById(id).style.display='flex';
+const closeOverlay = id=>document.getElementById(id).style.display='none';
+const copyText = text=>navigator.clipboard.writeText(text).then(()=>alert('Copied!'));
+
+/* THEME */
+document.getElementById('theme-toggle').onclick = ()=>document.body.classList.toggle('dark');
+
+/* FAVICON & LOGO */
+document.getElementById('favicon-btn').onclick = ()=>openOverlay('favicon-overlay');
+document.getElementById('site-logo').onclick = ()=>openOverlay('logo-overlay');
+
+/* ADMIN LOGIN */
+let adminAttempts=0, adminLockedUntil=null;
+document.getElementById('toggle-pass').onclick=()=>{
+  const p=document.getElementById('admin-password');
+  p.type=p.type==='password'?'text':'password';
+};
+document.getElementById('admin-btn').onclick=()=>openOverlay('admin-overlay');
+
+document.getElementById('admin-login-btn').onclick=()=>{
+  if(adminLockedUntil && new Date()<adminLockedUntil){
+    document.getElementById('admin-login-msg').innerText=`Access Denied. Retry after ${adminLockedUntil}`;
+    return;
+  }
+  const email=document.getElementById('admin-email').value;
+  const pass=document.getElementById('admin-password').value;
+  signInWithEmailAndPassword(auth,email,pass)
+    .then(()=>{
+      closeOverlay('admin-overlay');
+      openOverlay('admin-panel-overlay');
+      adminAttempts=0;
+      adminLockedUntil=null;
+      document.getElementById('admin-login-msg').innerText='';
+    })
+    .catch(()=>{
+      adminAttempts++;
+      if(adminAttempts>=5){ adminLockedUntil=new Date(new Date().getTime()+24*60*60*1000);
+        document.getElementById('admin-login-msg').innerText='😡 Too many attempts. Locked 24h';}
+      else document.getElementById('admin-login-msg').innerText=`Incorrect credentials. Attempts left: ${5-adminAttempts}`;
+    });
+};
+
+/* POSTS DATA */
+let posts=JSON.parse(localStorage.getItem('posts')||'[]');
+let infoPosts=JSON.parse(localStorage.getItem('infoPosts')||'[]');
+
+function renderPosts(){
+  const c=document.getElementById('posts-container'); c.innerHTML='';
+  posts.forEach((p,i)=>{
+    const d=document.createElement('div'); d.className='post';
+    d.innerHTML=`<div class="post-title">${p.title}</div>
+    <div class="post-date">${p.date}</div>
+    <div>${p.body}</div>`;
+    if(p.fileURL){
+      if(p.type==='locked'){
+        d.innerHTML+=`<div class="file-actions">
+          <button class="btn" onclick="attemptUnlock(${i})">Access Locked File</button>
+        </div>`;
+      }else{
+        d.innerHTML+=`<div class="file-actions">
+          <a href="${p.fileURL}" target="_blank" class="btn">View</a>
+          <a href="${p.fileURL}" download class="btn">Download</a>
+        </div>`;
+      }
+    }
+    c.appendChild(d);
+  });
+}
+renderPosts();
+
+function renderInfoPosts(){
+  const c=document.getElementById('info-posts-container'); c.innerHTML='';
+  infoPosts.forEach(p=>{
+    const d=document.createElement('div'); d.className='post';
+    d.innerHTML=`<div class="post-title">${p.title}</div>
+    <div class="post-date">${p.date}</div>
+    <div>${p.body}</div>`;
+    if(p.fileURL){
+      d.innerHTML+=`<div class="file-actions">
+      <a href="${p.fileURL}" target="_blank" class="btn">View</a>
+      <a href="${p.fileURL}" download class="btn">Download</a>
+      </div>`;
+    }
+    c.appendChild(d);
+  });
+}
+renderInfoPosts();
+
+/* PUBLISH FUNCTIONS */
+function publishFreePost(){
+  const t=document.getElementById('free-title').value;
+  const b=document.getElementById('free-body').value;
+  const u=document.getElementById('free-file-url').value;
+  if(!t||!b){alert('Fill all fields');return;}
+  posts.push({title:t,body:b,fileURL:u,date:new Date().toLocaleString(),type:'free'});
+  localStorage.setItem('posts',JSON.stringify(posts)); renderPosts();
+  closeOverlay('free-post-overlay'); alert('Post JSON ready for GitHub update');
+}
+function publishLockedPost(){
+  const t=document.getElementById('locked-title').value;
+  const b=document.getElementById('locked-body').value;
+  const u=document.getElementById('locked-file-url').value;
+  const a=document.getElementById('locked-account').value;
+  const c=document.getElementById('locked-currency').value;
+  const p=document.getElementById('locked-price').value;
+  if(!t||!b||!a||!c||!p){alert('Fill all fields');return;}
+  posts.push({title:t,body:b,fileURL:u,account:a,currency:c,price:p,date:new Date().toLocaleString(),type:'locked',unlockCodes:[]});
+  localStorage.setItem('posts',JSON.stringify(posts)); renderPosts();
+  closeOverlay('locked-post-overlay'); alert('Locked post JSON ready for GitHub update');
+}
+function publishInfo(){
+  const t=document.getElementById('info-title').value;
+  const b=document.getElementById('info-body').value;
+  const u=document.getElementById('info-file-url').value;
+  if(!t||!b){alert('Fill all fields');return;}
+  infoPosts.push({title:t,body:b,fileURL:u,date:new Date().toLocaleString()});
+  localStorage.setItem('infoPosts',JSON.stringify(infoPosts)); renderInfoPosts();
+  closeOverlay('upload-info-overlay'); alert('Info JSON ready for GitHub update');
+}
+
+/* SEARCH */
+document.getElementById('search-bar').addEventListener('input',e=>{
+  const q=e.target.value.toLowerCase();
+  document.querySelectordocument.querySelectorAll('#posts-container .post').forEach(p=>{
+    p.style.display=p.innerText.toLowerCase().includes(q)?'block':'none';
+  });
+});
+
+function filterInfoPosts(){
+  const q=document.getElementById('info-search').value.toLowerCase();
+  document.querySelectorAll('#info-posts-container .post').forEach(p=>{
+    p.style.display=p.innerText.toLowerCase().includes(q)?'block':'none';
+  });
+}
+
+/* ====== UNLOCK WORKFLOW ====== */
+let unlockAttempts = {}; // key: post index, value: attempts
+let unlockLockUntil = {}; // key: post index, value: Date
+
+function attemptUnlock(index){
+  const post = posts[index];
+  if(!unlockAttempts[index]) unlockAttempts[index] = 0;
+  if(!unlockLockUntil[index]) unlockLockUntil[index] = null;
+
+  if(unlockLockUntil[index] && new Date() < unlockLockUntil[index]){
+    alert(`Access Denied - Retry after ${unlockLockUntil[index]}`);
+    return;
+  }
+
+  const userCode = prompt("This post is locked. Enter 20-digit unlock code:");
+  if(userCode === null) return; // Cancelled
+
+  if(post.unlockCodes.includes(userCode)){
+    alert("Code correct! You now have access forever on this browser.");
+    // Replace button with actual file links
+    renderPosts();
+  } else {
+    unlockAttempts[index]++;
+    if(unlockAttempts[index]>=5){
+      unlockLockUntil[index]=new Date(new Date().getTime()+12*60*60*1000);
+      alert(`😡 Too many wrong attempts. Locked for 12h`);
+    } else {
+      alert(`Incorrect code. Attempts left: ${5 - unlockAttempts[index]}`);
+    }
+  }
+}
+
+/* ====== GENERATE UNLOCK CODE ====== */
+function generateUnlockCode() {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
+  let code = '';
+  for (let i = 0; i < 20; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  const postIndex = prompt("Enter locked post index (0,1,2...) to attach this code:");
+  if(postIndex!==null && posts[postIndex] && posts[postIndex].type==='locked'){
+    posts[postIndex].unlockCodes.push(code);
+    localStorage.setItem('posts', JSON.stringify(posts));
+    document.getElementById('generated-code').innerText = code;
+    alert('Unlock code attached to the post and ready to share.');
+  } else {
+    alert('Invalid post index!');
+  }
+}
+
+/* COPY GENERATED CODE */
+function copyGeneratedCode() {
+  const code = document.getElementById('generated-code').innerText;
+  if(code) navigator.clipboard.writeText(code).then(()=>alert('Code copied!'));
+  else alert('Generate a code first!');
+}
+
+/* BUTTONS TO OPEN OVERLAYS */
+document.getElementById('info-btn').onclick = () => openOverlay('info-display-overlay');
+document.getElementById('contact-btn').onclick = () => openOverlay('contact-overlay');
+
+/* CLOSE BUTTONS */
+document.querySelectorAll('.close-btn').forEach(btn=>{
+  btn.onclick=()=>btn.parentElement.parentElement.style.display='none';
+});
+
+/* INITIAL RENDER */
+renderPosts();
+renderInfoPosts();
+</script>
+</body>
+</html>
