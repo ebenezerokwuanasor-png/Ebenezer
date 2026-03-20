@@ -9,10 +9,13 @@
 <meta property="og:description" content="Official website of Okwuanasor Ebenezer Onyekachukwu, a writer sharing ideas and posts.">
 <meta property="og:image" content="favicon.png">
 <meta property="og:type" content="website">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ebenezer.com</title>
-<link id="faviconTag" rel="icon" href="favicon.png" sizes="128x128">
+
+<!-- ✅ FIXED FAVICON -->
+<link id="faviconTag" rel="icon" type="image/png" href="https://fjiwrdecjftkflchjptr.supabase.co/storage/v1/object/public/favicon/favicon.png">
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -59,7 +62,6 @@ button.actionBtn:hover { background:#ee0979; }
 <div class="banner">Ebenezer.com
 <i>The Official Website of Okwuanasor Ebenezer Onyekachukwu</i></div>
 
-<!-- SEARCH BAR -->
 <div class="search-bar">
 <input id="searchInput" placeholder="Search posts...">
 <button onclick="searchPosts()">Search</button>
@@ -117,12 +119,12 @@ button.actionBtn:hover { background:#ee0979; }
 </div>
 
 <script>
+// sidebar etc...
 function toggleSidebar(){ document.getElementById("sidebar").classList.toggle("open"); }
 function closeOverlay(id){ document.getElementById(id).style.display="none"; }
 function toggleTheme(){ darkTheme=!darkTheme; document.body.style.background = darkTheme ? "#222":"#f2f2f2"; }
 function togglePassword(){ let p=document.getElementById("adminPass"); p.type=p.type==="password"?"text":"password"; }
 
-// ADMIN
 function adminClick(){ if(admin) document.getElementById("adminPanel").style.display="flex"; else document.getElementById("adminLogin").style.display="flex"; }
 
 async function adminLogin(){
@@ -141,58 +143,47 @@ async function adminLogout(){ await db.auth.signOut(); admin=false; closeOverlay
 function openContact(){ document.getElementById("contactOverlay").style.display="flex"; }
 
 async function uploadFile(file,bucket){ 
-    if(!file) return ""; 
     let name=Date.now()+"_"+file.name; 
     await db.storage.from(bucket).upload(name,file); 
     return SUPABASE_URL+"/storage/v1/object/public/"+bucket+"/"+name; 
 }
 
-async function createPost(){
-if(!admin) return alert("Admin only!");
-let title=document.getElementById("postTitle").value;
-let body=document.getElementById("postBody").value;
-if(!title.trim() || !body.trim()) return alert("❌ Fill all fields");
-let file=document.getElementById("mediaFile").files[0];
-let url=document.getElementById("mediaURL").value;
-let media=file?await uploadFile(file,MEDIA_BUCKET):url;
-await db.from("posts").insert({title,body,media,type:"post"});
-loadPosts(); alert("✅ Post uploaded!");
-}
-
-async function deletePost(){ 
-let id=prompt("Enter Post ID"); 
-if(!id) return; 
-await db.from("posts").delete().eq("id",id); 
-loadPosts(); alert("✅ Deleted!"); 
-}
-
-// ✅ Fixed favicon preview
+// ✅ FIXED favicon
 async function changeFavicon(){
     if(!admin) return alert("Admin only!");
     let input = document.createElement("input");
     input.type = "file";
     input.accept = "image/png";
+
     input.onchange = async () => {
         let file = input.files[0];
-        if(!file) return;
-
         let img = new Image();
+
         img.onload = async () => {
             if(img.width !== 128 || img.height !== 128){
-                alert("❌ Favicon must be exactly 128x128!");
-            } else {
-                let url = await uploadFile(file, FAVICON_BUCKET);
-                document.getElementById("faviconTag").href = url;
-                alert("✅ Favicon updated!");
+                return alert("❌ Must be 128x128");
             }
+
+            await db.storage.from(FAVICON_BUCKET)
+                .upload("favicon.png", file, { upsert: true });
+
+            let url = SUPABASE_URL + "/storage/v1/object/public/favicon/favicon.png?v=" + Date.now();
+            document.getElementById("faviconTag").href = url;
+
+            alert("✅ Favicon updated!");
         };
-        img.onerror = () => alert("❌ Invalid image file!");
+
         img.src = URL.createObjectURL(file);
     };
+
     input.click();
 }
 
-// LOAD & SEARCH
+// auto load favicon
+document.getElementById("faviconTag").href =
+SUPABASE_URL + "/storage/v1/object/public/favicon/favicon.png?v=" + Date.now();
+
+// posts
 async function loadPosts(filter=""){
 let {data} = await db.from("posts").select("*").order("id",{ascending:false});
 let container=document.getElementById("posts"); container.innerHTML="";
