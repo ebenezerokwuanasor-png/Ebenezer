@@ -132,7 +132,12 @@ async function adminLogout(){ await db.auth.signOut(); admin=false; closeOverlay
 
 function openContact(){ document.getElementById("contactOverlay").style.display="flex"; }
 
-async function uploadFile(file,bucket){ if(!file) return ""; let name=Date.now()+"_"+file.name; await db.storage.from(bucket).upload(name,file); return SUPABASE_URL+"/storage/v1/object/public/"+bucket+"/"+name; }
+async function uploadFile(file,bucket){ 
+    if(!file) return ""; 
+    let name=Date.now()+"_"+file.name; 
+    await db.storage.from(bucket).upload(name,file); 
+    return SUPABASE_URL+"/storage/v1/object/public/"+bucket+"/"+name; 
+}
 
 async function createPost(){
 if(!admin) return alert("Admin only!");
@@ -146,19 +151,37 @@ await db.from("posts").insert({title,body,media,type:"post"});
 loadPosts(); alert("✅ Post uploaded!");
 }
 
-async function deletePost(){ let id=prompt("Enter Post ID"); if(!id) return; await db.from("posts").delete().eq("id",id); loadPosts(); alert("✅ Deleted!"); }
+async function deletePost(){ 
+let id=prompt("Enter Post ID"); 
+if(!id) return; 
+await db.from("posts").delete().eq("id",id); 
+loadPosts(); alert("✅ Deleted!"); 
+}
 
+// ✅ Fixed favicon preview
 async function changeFavicon(){
-if(!admin) return alert("Admin only!");
-let input=document.createElement("input");
-input.type="file"; input.accept="image/png";
-input.onchange=async ()=>{
-let file=input.files[0];
-if(file.width!==128 || file.height!==128) alert("❌ Must be 128x128!"); else {
-let url=await uploadFile(file,FAVICON_BUCKET);
-document.getElementById("faviconTag").href=url;
-alert("✅ Favicon updated!"); }};
-input.click();
+    if(!admin) return alert("Admin only!");
+    let input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/png";
+    input.onchange = async () => {
+        let file = input.files[0];
+        if(!file) return;
+
+        let img = new Image();
+        img.onload = async () => {
+            if(img.width !== 128 || img.height !== 128){
+                alert("❌ Favicon must be exactly 128x128!");
+            } else {
+                let url = await uploadFile(file, FAVICON_BUCKET);
+                document.getElementById("faviconTag").href = url;
+                alert("✅ Favicon updated!");
+            }
+        };
+        img.onerror = () => alert("❌ Invalid image file!");
+        img.src = URL.createObjectURL(file);
+    };
+    input.click();
 }
 
 // LOAD & SEARCH
